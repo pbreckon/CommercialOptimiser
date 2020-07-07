@@ -1,0 +1,68 @@
+﻿@page "/"
+
+@using Microsoft.Extensions.Localization
+@using CommercialOptimiser.Models
+@using CommercialOptimiser.Data
+@using CommercialOptimiser.ViewModels
+@inject IStringLocalizer<Commercials> Resources
+@inject ICommercialsViewModel ViewModel
+
+<h1>@Resources["Title"]</h1>
+
+<button class="btn btn-primary" 
+        @onclick="ViewModel.ApplyOptimalPlacement">@Resources["UseOptimalHeader"]</button>
+
+@if (ViewModel.Breaks == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <tbody>
+        @foreach (var aBreak in ViewModel.Breaks)
+        {
+            <tr>
+                <td>@aBreak.Name 
+                    @foreach (var commercial in ViewModel.GetCommercials(aBreak))
+                    {
+                        <p/>
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <td>@commercial.Name </td>
+                                    <td>@commercial.Type</td>
+                                    <td>@ViewModel.GetCommercialBreakRating(aBreak, commercial)</td>
+                                    <td>
+                                        <button class="btn btn-primary" 
+                                                @onclick="@(v => ViewModel.RemoveCommercialFromBreak(aBreak, commercial))">@Resources["X"]</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    }
+
+                    @if(ViewModel.GetCommercials(aBreak).Count() < aBreak.Capacity)
+                    { 
+                        <p/>
+                        <button class="btn btn-primary" 
+                                @onclick="@(v => ViewModel.AddCommercial(aBreak))">@Resources["AddCommercial"]</button>
+                    }
+                </td>
+                
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <button class="btn btn-primary" 
+            @onclick="ViewModel.Reset">@Resources["Clear"]</button>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await ViewModel.InitializeAsync();
+    }
+}
+
