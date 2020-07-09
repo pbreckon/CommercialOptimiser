@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30204.135
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommercialOptimiser.App", "CommercialOptimiser.App\CommercialOptimiser.App.csproj", "{2095956E-52F4-4B7E-8FED-F7C20B62CD9A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommercialOptimiser.Data", "CommercialOptimiser.Data\CommercialOptimiser.Data.csproj", "{B7EB1A1A-8497-4A99-BBA7-4CD249A29D60}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3.API", "3.API", "{CEAB33AD-AD15-41D1-840A-5C00C2F2537C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1.App", "1.App", "{DF24C944-1356-4F7F-A1D4-6B10D0E2859C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2.Shared", "2.Shared", "{01B91D01-8038-4D62-979E-B07BE80BA496}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommercialOptimiser.Api", "CommercialOptimiser.Api\CommercialOptimiser.Api.csproj", "{EDED289C-1CC5-41A5-A3DA-2547F0C8A9A2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommercialOptimiser.Api.Test", "CommercialOptimiser.Api.Test\CommercialOptimiser.Api.Test.csproj", "{DA6D8FC7-0C90-4B30-8567-6E402A577B96}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2095956E-52F4-4B7E-8FED-F7C20B62CD9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2095956E-52F4-4B7E-8FED-F7C20B62CD9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2095956E-52F4-4B7E-8FED-F7C20B62CD9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2095956E-52F4-4B7E-8FED-F7C20B62CD9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7EB1A1A-8497-4A99-BBA7-4CD249A29D60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7EB1A1A-8497-4A99-BBA7-4CD249A29D60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7EB1A1A-8497-4A99-BBA7-4CD249A29D60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7EB1A1A-8497-4A99-BBA7-4CD249A29D60}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDED289C-1CC5-41A5-A3DA-2547F0C8A9A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDED289C-1CC5-41A5-A3DA-2547F0C8A9A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDED289C-1CC5-41A5-A3DA-2547F0C8A9A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDED289C-1CC5-41A5-A3DA-2547F0C8A9A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA6D8FC7-0C90-4B30-8567-6E402A577B96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA6D8FC7-0C90-4B30-8567-6E402A577B96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA6D8FC7-0C90-4B30-8567-6E402A577B96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA6D8FC7-0C90-4B30-8567-6E402A577B96}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2095956E-52F4-4B7E-8FED-F7C20B62CD9A} = {DF24C944-1356-4F7F-A1D4-6B10D0E2859C}
+		{B7EB1A1A-8497-4A99-BBA7-4CD249A29D60} = {01B91D01-8038-4D62-979E-B07BE80BA496}
+		{EDED289C-1CC5-41A5-A3DA-2547F0C8A9A2} = {CEAB33AD-AD15-41D1-840A-5C00C2F2537C}
+		{DA6D8FC7-0C90-4B30-8567-6E402A577B96} = {CEAB33AD-AD15-41D1-840A-5C00C2F2537C}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {56541996-8606-4899-86EF-32B4399EA7F1}
+	EndGlobalSection
+EndGlobal
