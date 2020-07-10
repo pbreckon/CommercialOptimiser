@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using CommercialOptimiser.Data.Models;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace CommercialOptimiser.Api.Helpers
 {
@@ -33,7 +32,7 @@ namespace CommercialOptimiser.Api.Helpers
             //2) Commercials of the same type cannot be next to each other within a break
 
             var totalCommercialSpace = breaks.Sum(aBreak => aBreak.Capacity);
-            if (totalCommercialSpace > commercials.Count())
+            if (totalCommercialSpace > commercials.Count)
                 //Not enough commercials to fulfill the break capacities, 
                 throw new ArgumentException(
                     "Number of commercials supplied is not sufficient to fulfill the break capacity");
@@ -62,10 +61,11 @@ namespace CommercialOptimiser.Api.Helpers
             }
 
             orderedBreakDemographics.Sort();
+            var remainingCommercials = commercials.ToList();
 
-            //We will fill the commercial slots until none are left
+            //We will fill the commercial slots with the best possible commercials until none are left
             while (HasSpaceAvailable(allBreakCommercials) &&
-                   commercials.Any())
+                   remainingCommercials.Any())
             {
                 bool addedCommercial = false;
 
@@ -80,19 +80,23 @@ namespace CommercialOptimiser.Api.Helpers
                         //We've already filled the break
                         continue;
 
-                    //Fill the commercials in the best positions, ignoring for now the commercial type and 
-                    //associated restrictions
+                    //Fill the commercials in the best positions, ignoring for now the number of commercial
+                    //types we add to a break
                     var matchingCommercial =
-                        commercials.FirstOrDefault(
+                        remainingCommercials.FirstOrDefault(
                             commercial =>
-                                commercial.Demographic.Id == orderedBreakDemographic.Demographic.Id);
+                                commercial.Demographic.Id == orderedBreakDemographic.Demographic.Id &&
+                                (matchingBreakCommercials.Break.InvalidCommercialTypes == null ||
+                                 !matchingBreakCommercials.Break.InvalidCommercialTypes.Contains(
+                                     commercial.CommercialType)));
 
                     if (matchingCommercial != null)
                     {
                         //Allocate the commercial
                         matchingBreakCommercials.Commercials.Add(matchingCommercial);
-                        commercials.Remove(matchingCommercial);
+                        remainingCommercials.Remove(matchingCommercial);
                         addedCommercial = true;
+                        break;
                     }
                 }
 
@@ -109,7 +113,12 @@ namespace CommercialOptimiser.Api.Helpers
             //We do this by finding the best valid swap of commercials from one break to another
             //based on the change in rating.
             //Do this until there are no more restriction conflicts or we can't do a swap
-            SwapCommercials(allBreakCommercials, commercials);
+            SwapInvalidCommercials(allBreakCommercials, remainingCommercials);
+
+            //We've eliminated type restrictions, but we may not have the commercials completely 
+            //optimized. So we cycle through them checking swaps until the rating change is no longer positive
+            //Each time the rating change is positive we make the swap
+            // TryAllRemainingSwaps(allBreakCommercials, remainingCommercials);
 
             //Finally we should be left with breaks filled with commercials can be rearranged into
             //a valid order - so that's what we do next
@@ -150,65 +159,12 @@ namespace CommercialOptimiser.Api.Helpers
             return true;
         }
 
-        private bool IsCommercialValidForBreak(
-            BreakCommercials breakCommercials,
-            Commercial commercial)
-        {
-            //Is the source commercial valid for the target break?
-            if (breakCommercials.Break.InvalidCommercialTypes != null &&
-                breakCommercials.Break.InvalidCommercialTypes.Contains(commercial.CommercialType))
-                //Commercial type is invalid for this break
-                return false;
-
-            var targetCountAlreadyInBreak =
-                breakCommercials.Commercials.Count(
-                    value => value.CommercialType == commercial.CommercialType);
-            if (targetCountAlreadyInBreak + 1 > MaxBreakCapacityForCommercialType(breakCommercials.Break))
-                //Adding this type to the break will mean there's too many of the type 
-                return false;
-
-            return true;
-        }
-
-        private int GetRatingChangeForSwap(
-            BreakCommercials sourceBreakCommercials,
-            Commercial sourceCommercial,
-            BreakCommercials targetBreakCommercials,
-            Commercial targetCommercial)
-        {
-            var ratingTotalAfterSwap = 0;
-            
-            if (sourceBreakCommercials != null)
-                ratingTotalAfterSwap += sourceBreakCommercials.Break.BreakDemographics
-                    .Where(value => value.Demographic.Id == targetCommercial.Demographic.Id)
-                    .Select(value => value.Rating).FirstOrDefault();
-
-            if (targetBreakCommercials != null)
-                ratingTotalAfterSwap += targetBreakCommercials.Break.BreakDemographics
-                    .Where(value => value.Demographic.Id == sourceCommercial.Demographic.Id)
-                    .Select(value => value.Rating).FirstOrDefault();
-
-            var ratingTotalBeforeSwap = 0;
-
-            if (sourceBreakCommercials != null)
-                ratingTotalAfterSwap += sourceBreakCommercials.Break.BreakDemographics
-                    .Where(value => value.Demographic.Id == sourceCommercial.Demographic.Id)
-                    .Select(value => value.Rating).FirstOrDefault();
-
-            if (targetBreakCommercials != null)
-                ratingTotalAfterSwap += targetBreakCommercials.Break.BreakDemographics
-                    .Where(value => value.Demographic.Id == targetCommercial.Demographic.Id)
-                    .Select(value => value.Rating).FirstOrDefault();
-
-            return ratingTotalAfterSwap - ratingTotalBeforeSwap;
-        }
-
         private (
-            BreakCommercials Commercials, 
-            Commercial NewSourceCommercial, 
+            BreakCommercials SelectedBreakCommercials,
+            Commercial NewSourceCommercial,
             Commercial OldTargetCommercial,
             Commercial NewTargetCommercial,
-            int RatingChange)? 
+            int RatingChange)?
             GetBestSwap(
                 BreakCommercials sourceBreakCommercials,
                 Commercial sourceCommercial,
@@ -306,10 +262,62 @@ namespace CommercialOptimiser.Api.Helpers
 
             return (
                 selectedBreakCommercials,
-                selectedNewSourceCommercial, 
+                selectedNewSourceCommercial,
                 selectedOldTargetCommercial,
                 selectedNewTargetCommercial,
                 bestRatingChange);
+        }
+
+        private (string, int) GetMostFrequentCommercialType(
+            BreakCommercials breakCommercials)
+        {
+            var commercialFrequency =
+                breakCommercials.Commercials
+                    .GroupBy(c => c.CommercialType)
+                    .Select(
+                        g => new
+                        {
+                            CommercialType = g.Key,
+                            Count = g.Select(c => c.CommercialType).Count()
+                        });
+            var maxValue =
+                commercialFrequency.First(
+                    value1 =>
+                        value1.Count == commercialFrequency.Max(value2 => value2.Count));
+            return (maxValue.CommercialType, maxValue.Count);
+        }
+
+        private int GetRatingChangeForSwap(
+            BreakCommercials sourceBreakCommercials,
+            Commercial sourceCommercial,
+            BreakCommercials targetBreakCommercials,
+            Commercial targetCommercial)
+        {
+            var ratingTotalAfterSwap = 0;
+
+            if (sourceBreakCommercials != null)
+                ratingTotalAfterSwap += sourceBreakCommercials.Break.BreakDemographics
+                    .Where(value => value.Demographic.Id == targetCommercial.Demographic.Id)
+                    .Select(value => value.Rating).FirstOrDefault();
+
+            if (targetBreakCommercials != null)
+                ratingTotalAfterSwap += targetBreakCommercials.Break.BreakDemographics
+                    .Where(value => value.Demographic.Id == sourceCommercial.Demographic.Id)
+                    .Select(value => value.Rating).FirstOrDefault();
+
+            var ratingTotalBeforeSwap = 0;
+
+            if (sourceBreakCommercials != null)
+                ratingTotalBeforeSwap += sourceBreakCommercials.Break.BreakDemographics
+                    .Where(value => value.Demographic.Id == sourceCommercial.Demographic.Id)
+                    .Select(value => value.Rating).FirstOrDefault();
+
+            if (targetBreakCommercials != null)
+                ratingTotalBeforeSwap += targetBreakCommercials.Break.BreakDemographics
+                    .Where(value => value.Demographic.Id == targetCommercial.Demographic.Id)
+                    .Select(value => value.Rating).FirstOrDefault();
+
+            return ratingTotalAfterSwap - ratingTotalBeforeSwap;
         }
 
         private bool HasSpaceAvailable(List<BreakCommercials> allBreakCommercials)
@@ -319,6 +327,26 @@ namespace CommercialOptimiser.Api.Helpers
                     breakCommercials =>
                         breakCommercials.Commercials.Count < breakCommercials.Break.Capacity);
             return hasSpace;
+        }
+
+        private bool IsCommercialValidForBreak(
+            BreakCommercials breakCommercials,
+            Commercial commercial)
+        {
+            //Is the source commercial valid for the target break?
+            if (breakCommercials.Break.InvalidCommercialTypes != null &&
+                breakCommercials.Break.InvalidCommercialTypes.Contains(commercial.CommercialType))
+                //Commercial type is invalid for this break
+                return false;
+
+            var targetCountAlreadyInBreak =
+                breakCommercials.Commercials.Count(
+                    value => value.CommercialType == commercial.CommercialType);
+            if (targetCountAlreadyInBreak + 1 > MaxBreakCapacityForCommercialType(breakCommercials.Break))
+                //Adding this type to the break will mean there's too many of the type 
+                return false;
+
+            return true;
         }
 
         private void LogCurrentAllocation(List<BreakCommercials> allBreakCommercials)
@@ -353,15 +381,16 @@ namespace CommercialOptimiser.Api.Helpers
                     doneReordering = false;
 
                     Commercial matchingCommercial = null;
-                    
+
                     var lastCommercialType = reorderedCommercials.LastOrDefault()?.CommercialType;
                     if (lastCommercialType == null || lastCommercialType != frequentCommercialType.Item1)
                     {
                         //Prioritise adding a commercial of the most frequent type to avoid 
                         //possible adjacency conflicts later
-                        matchingCommercial = 
-                            breakCommercials.Commercials.FirstOrDefault(value => 
-                                value.CommercialType == frequentCommercialType.Item1);
+                        matchingCommercial =
+                            breakCommercials.Commercials.FirstOrDefault(
+                                value =>
+                                    value.CommercialType == frequentCommercialType.Item1);
                     }
 
                     if (matchingCommercial == null)
@@ -389,25 +418,7 @@ namespace CommercialOptimiser.Api.Helpers
             }
         }
 
-        private (string, int) GetMostFrequentCommercialType(
-            BreakCommercials breakCommercials)
-        {
-            var commercialFrequency =
-                breakCommercials.Commercials
-                    .GroupBy(c => c.CommercialType)
-                    .Select(
-                        g => new
-                        {
-                            CommercialType = g.Key,
-                            Count = g.Select(c => c.CommercialType).Count()
-                        });
-            var maxValue =
-                commercialFrequency.First(value1 => 
-                    value1.Count == commercialFrequency.Max(value2 => value2.Count));
-            return (maxValue.CommercialType, maxValue.Count);
-        }
-
-        private void SwapCommercials(
+        private void SwapInvalidCommercials(
             List<BreakCommercials> allBreakCommercials,
             List<Commercial> unusedCommercials)
         {
@@ -431,8 +442,8 @@ namespace CommercialOptimiser.Api.Helpers
                                 unusedCommercials);
                         if (bestSwapResult.HasValue)
                         {
-                            var selectedBreakCommercials = bestSwapResult.Value.Item1;
-                            var selectedTargetCommercial = bestSwapResult.Value.Item2;
+                            var selectedBreakCommercials = bestSwapResult.Value.SelectedBreakCommercials;
+                            var selectedTargetCommercial = bestSwapResult.Value.NewSourceCommercial;
                             selectedBreakCommercials.Commercials.Remove(selectedTargetCommercial);
                             selectedBreakCommercials.Commercials.Add(invalidCommercial);
                             breakCommercials.Commercials.Remove(invalidCommercial);
@@ -502,7 +513,7 @@ namespace CommercialOptimiser.Api.Helpers
                                         $"Swapped {oldTargetCommercial.Id} for {newTargetCommercial.Id}");
                             }
                         }
-                        
+
                         //If we have a valid swap setup, do it
                         if (newSourceCommercial == null ||
                             newSourceCommercial == oldSourceCommercial)
@@ -516,6 +527,15 @@ namespace CommercialOptimiser.Api.Helpers
                         selectedBreakCommercials.Commercials.Remove(oldTargetCommercial);
                         selectedBreakCommercials.Commercials.Add(newTargetCommercial);
                         matchingCommercials.Remove(oldSourceCommercial);
+
+                        //Ensure we add any now-unused commercials back to the unused collection
+                        if (oldSourceCommercial != newSourceCommercial &&
+                            oldSourceCommercial != newTargetCommercial)
+                            unusedCommercials.Add(oldSourceCommercial);
+
+                        if (oldTargetCommercial != newSourceCommercial &&
+                            oldTargetCommercial != newTargetCommercial)
+                            unusedCommercials.Add(oldTargetCommercial);
                     }
                 }
             }
