@@ -16,6 +16,20 @@
 else
 {
     <table class="table">
+        <thead>
+            <tr>
+                @string.Format(Resources["CommercialsSelected"], 
+                    ViewModel.SelectedCommercialCount,
+                    ViewModel.BreakCapacity)
+            </tr>
+            <tr>
+                <td>
+                    @Resources["SelectAll"]
+                    <input type="checkbox"
+                           @bind=@ViewModel.AllSelected>
+                </td>
+            </tr>
+        </thead>
         <tbody>
             @foreach (var commercial in ViewModel.Commercials)
             {
@@ -29,11 +43,23 @@ else
                 </tr>
             }
         </tbody>
+        <tfoot>
+            <tr>
+                <td>
+                    <button class="btn btn-primary" @onclick="Cancel">
+                        @Resources["Cancel"]
+                    </button>
+                </td>
+                <td>
+                    <button class="btn btn-primary" @onclick="OptimiseCommercialAllocationAsync">
+                        @Resources["OptimiseCommercialAllocation"]
+                    </button>
+                </td>
+            </tr>
+        </tfoot>
     </table>
 
-    <button class="btn btn-primary" @onclick="OptimiseCommercialAllocationAsync">
-        @Resources["OptimiseCommercialAllocation"]
-    </button>
+   
 }
 
 @code {
@@ -46,17 +72,29 @@ else
     {
         try
         {
-            await ViewModel.OptimiseCommercialAllocationAsync();
+            if (!await ViewModel.OptimiseCommercialAllocationAsync())
+            {
+                //Not enough commercials selected
+                return;
+            }
         }
-        catch (ArgumentException ex)
+        catch (ArgumentException)
         {
-
+            //Failure to allocate commercials
+            return;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-
+            //Problem communicating with API
+            NavigationManager.NavigateTo("error");
+            return;
         }
 
+        NavigationManager.NavigateTo("/");
+    }
+
+    private void Cancel()
+    {
         NavigationManager.NavigateTo("/");
     }
 }

@@ -5,16 +5,19 @@ html, body {
 }
 
 h1 {
-    font-size: 6vw;
-
-
-
+    font-size: 5vw;
     text-align: center;
 }
 
 @media screen and (min-width: 600px) {
     h1 {
         font-size: 4vw;
+    }
+}
+
+@media print {
+    footer, header, non-printable-part {
+        display: none;
     }
 }
 

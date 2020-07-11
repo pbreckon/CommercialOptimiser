@@ -4,6 +4,7 @@ using CommercialOptimiser.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using CommercialOptimiser.Api.Database;
 using CommercialOptimiser.Api.Database.Tables;
@@ -16,8 +17,8 @@ namespace CommercialOptimiser.Api.Services
         #region Members
 
         private readonly DatabaseContext _databaseContext;
-        private readonly ITableModelConverter _tableModelConverter;
         private readonly IOptimiserHelper _optimiserHelper;
+        private readonly ITableModelConverter _tableModelConverter;
 
         #endregion
 
@@ -37,51 +38,42 @@ namespace CommercialOptimiser.Api.Services
 
         #region Public Methods
 
-        public async Task<List<UserReportBreak>> GetUserReportBreaksAsync(string uniqueUserId)
-        {
-            var userReportBreakTables =
-                await _databaseContext.UserReportBreaks
-                    .Include(urb => urb.UserReportBreakCommercials)
-                    .Include(urb => urb.User)
-                    .Where(ubt => ubt.User.UserUniqueId == uniqueUserId) 
-                    .ToListAsync();
-
-            var userBreaks = userReportBreakTables.Select(_tableModelConverter.ConvertTableToModel);
-            return userBreaks.ToList();
-        }
-
         public async Task CalculateOptimalBreakCommercialsAsync(
             string uniqueUserId,
             List<Commercial> commercials)
         {
             var breaks = await _databaseContext.Breaks.ToListAsync();
 
-            var optimalBreakCommercials = 
+            var optimalBreakCommercials =
                 _optimiserHelper.GetOptimalBreakCommercials(
-                    breaks.Select(_tableModelConverter.ConvertTableToModel).ToList(), 
+                    breaks.Select(_tableModelConverter.ConvertTableToModel).ToList(),
                     commercials);
 
-            var userTable = await _databaseContext.Users.FirstOrDefaultAsync(value =>
-                value.UserUniqueId == uniqueUserId);
+            var userTable = await _databaseContext.Users.FirstOrDefaultAsync(
+                value =>
+                    value.UserUniqueId == uniqueUserId);
             if (userTable == null)
             {
-                userTable = new UserTable { UserUniqueId = uniqueUserId };
+                userTable = new UserTable {UserUniqueId = uniqueUserId};
                 await _databaseContext.Users.AddAsync(userTable);
                 _databaseContext.SaveChanges();
             }
-            
-            var currentUserBreaks = 
-                await _databaseContext.UserReportBreaks.Where(value => 
-                    value.User.Id == userTable.Id).ToListAsync();
+
+            var currentUserBreaks =
+                await _databaseContext.UserReportBreaks.Where(
+                    value =>
+                        value.User.Id == userTable.Id).ToListAsync();
             foreach (var currentUserBreak in currentUserBreaks)
             {
                 var currentUserBreakCommercials =
-                    await _databaseContext.UserReportBreakCommercials.Where(value =>
-                        value.UserReportBreak.Id == currentUserBreak.Id).ToListAsync();
+                    await _databaseContext.UserReportBreakCommercials.Where(
+                        value =>
+                            value.UserReportBreak.Id == currentUserBreak.Id).ToListAsync();
 
                 _databaseContext.UserReportBreakCommercials.RemoveRange(currentUserBreakCommercials);
                 _databaseContext.SaveChanges();
             }
+
             _databaseContext.UserReportBreaks.RemoveRange(currentUserBreaks);
             _databaseContext.SaveChanges();
 
@@ -99,8 +91,8 @@ namespace CommercialOptimiser.Api.Services
                                     {
                                         CommercialTitle = commercial.Title,
                                         Rating = breakCommercials.Break.BreakDemographics.FirstOrDefault(
-                                                     value => value.Demographic.Id == commercial.Demographic.Id)?.Rating ?? 0
-
+                                                         value => value.Demographic.Id == commercial.Demographic.Id)
+                                                     ?.Rating ?? 0
                                     }).ToList(),
                         User = _tableModelConverter.ConvertTableToModel(userTable)
                     };
@@ -109,12 +101,24 @@ namespace CommercialOptimiser.Api.Services
 
                 _databaseContext.DetachLocal(userReportBreakTable.User);
                 _databaseContext.SaveChanges();
-                
+
                 await _databaseContext.UserReportBreaks.AddAsync(userReportBreakTable);
                 _databaseContext.SaveChanges();
             }
         }
 
+        public async Task<List<UserReportBreak>> GetUserReportBreaksAsync(string uniqueUserId)
+        {
+            var userReportBreakTables =
+                await _databaseContext.UserReportBreaks
+                    .Include(urb => urb.UserReportBreakCommercials)
+                    .Include(urb => urb.User)
+                    .Where(ubt => ubt.User.UserUniqueId == uniqueUserId)
+                    .ToListAsync();
+
+            var userBreaks = userReportBreakTables.Select(_tableModelConverter.ConvertTableToModel);
+            return userBreaks.ToList();
+        }
 
         #endregion
     }

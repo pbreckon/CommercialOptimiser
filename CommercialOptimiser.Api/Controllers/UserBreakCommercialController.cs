@@ -61,13 +61,6 @@ namespace CommercialOptimiser.Api.Controllers
                 commercials);
         }
 
-        [HttpPost]
-        [Route("print/{uniqueUserId}")]
-        public async Task PrintOptimalBreakCommercialsAsync(string uniqueUserId)
-        {
-
-        }
-
         #endregion
     }
 }

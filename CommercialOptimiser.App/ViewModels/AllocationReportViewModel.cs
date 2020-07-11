@@ -1,9 +1,11 @@
 ﻿using CommercialOptimiser.Core.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using CommercialOptimiser.App.Helpers;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Http;
 
 namespace CommercialOptimiser.App.ViewModels
 {
@@ -20,8 +22,6 @@ namespace CommercialOptimiser.App.ViewModels
         #region Public Methods
 
         Task InitializeAsync();
-
-        Task PrintAsync();
 
         #endregion
     }
@@ -58,10 +58,6 @@ namespace CommercialOptimiser.App.ViewModels
         public async Task InitializeAsync()
         {
             UserReportBreaks = await _apiHelper.GetUserReportBreaksAsync();
-        }
-
-        public async Task PrintAsync()
-        {
         }
 
         #endregion

@@ -5,6 +5,14 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
+RUN apt-get update \
+    && apt-get install -y --allow-unauthenticated --no-install-recommends \
+         apt-utils \
+   	     libgdiplus \
+         libx11-6 \
+         libxext6 \
+         libxrender1
+
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
 COPY ["CommercialOptimiser.App.csproj", ""]

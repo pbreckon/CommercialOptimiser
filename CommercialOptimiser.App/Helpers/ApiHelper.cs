@@ -25,8 +25,6 @@ namespace CommercialOptimiser.App.Helpers
 
         Task<List<UserReportBreak>> GetUserReportBreaksAsync();
 
-        Task PrintOptimalBreakCommercialsAsync();
-
         #endregion
     }
 
@@ -129,19 +127,6 @@ namespace CommercialOptimiser.App.Helpers
             catch (Exception exception)
             {
                 _logger.LogCritical(exception, "Error retrieving User Report Breaks");
-                throw;
-            }
-        }
-
-        public async Task PrintOptimalBreakCommercialsAsync()
-        {
-            try
-            {
-                await _client.PostAsync($"userBreaks/print/{GetUniqueUserId}", null);
-            }
-            catch (Exception exception)
-            {
-                _logger.LogCritical(exception, "Error calling print optimal break commercials endpoint");
                 throw;
             }
         }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CommercialOptimiser.App.Helpers;
@@ -10,9 +11,13 @@ namespace CommercialOptimiser.App.ViewModels
     {
         #region Public Properties
 
+        bool AllSelected { get; set; }
+
         int BreakCapacity { get; }
 
         List<CommercialViewModel> Commercials { get; set; }
+
+        int SelectedCommercialCount { get; }
 
         #endregion
 
@@ -20,7 +25,7 @@ namespace CommercialOptimiser.App.ViewModels
 
         Task InitializeAsync();
 
-        Task OptimiseCommercialAllocationAsync();
+        Task<bool> OptimiseCommercialAllocationAsync();
 
         #endregion
     }
@@ -47,9 +52,24 @@ namespace CommercialOptimiser.App.ViewModels
 
         #region Public Properties
 
+        public bool AllSelected
+        {
+            get { return Commercials.All(value => value.Checked); }
+            set
+            {
+                if (value)
+                {
+                    foreach (var commercial in Commercials)
+                        commercial.Checked = true;
+                }
+            }
+        }
+
         public int BreakCapacity => _breaks?.Sum(value => value.Capacity) ?? 0;
 
         public List<CommercialViewModel> Commercials { get; set; }
+
+        public int SelectedCommercialCount => SelectedCommercials?.Count ?? 0;
 
         #endregion
 
@@ -65,15 +85,23 @@ namespace CommercialOptimiser.App.ViewModels
             _breaks = await _apiHelper.GetBreaksAsync();
         }
 
-        public async Task OptimiseCommercialAllocationAsync()
+        public async Task<bool> OptimiseCommercialAllocationAsync()
         {
-            if (BreakCapacity == 0) return;
+            if (BreakCapacity == 0) return false;
             var selectedCommercials =
-                Commercials.Where(value => value.Checked).Select(value => value.Commercial).ToList();
-            if (selectedCommercials.Count < BreakCapacity) return;
+                SelectedCommercials.Select(value => value.Commercial).ToList();
+            if (selectedCommercials.Count < BreakCapacity) return false;
 
             await _apiHelper.CalculateOptimalBreakCommercialsAsync(selectedCommercials);
+            return true;
         }
+
+        #endregion
+
+        #region Private Properties
+
+        private List<CommercialViewModel> SelectedCommercials =>
+            Commercials?.Where(value => value.Checked).ToList();
 
         #endregion
     }

@@ -5,12 +5,11 @@
 @inject IStringLocalizer<AllocationReport> Resources
 @inject IAllocationReportViewModel ViewModel
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JsRuntime
 
-<h1>@Resources["Title"]</h1>
-
-<button class="btn btn-primary" @onclick="NavigateToCommercialSelection">
-    @Resources["SelectCommercials"]
-</button>
+<header>
+    <h1>@Resources["Title"]</h1>
+</header>
 
 @if (ViewModel.UserReportBreaks == null)
 {
@@ -20,7 +19,21 @@
 }
 else
 {
+    <header>
+        <button class="btn btn-primary" @onclick="NavigateToCommercialSelection">
+            @Resources["SelectCommercials"]
+        </button>
+    </header>
+
+
     <table class="table">
+        <thead>
+            <tr>
+                <td>
+                </td>
+            </tr>
+
+        </thead>
         <tbody>
             @foreach (var userReportBreak in ViewModel.UserReportBreaks)
             {
@@ -50,15 +63,14 @@ else
         </tbody>
     </table>
 
-    <button class="btn btn-primary" @onclick="ViewModel.PrintAsync">
-        @Resources["Print"]
-    </button>
+    <footer>
+        <button class="btn btn-primary" @onclick="PrintAsync">
+            @Resources["Print"]
+        </button>
+    </footer>
 }
 
 @code {
-    protected override async Task OnInitializedAsync()
-    {
-    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -66,7 +78,16 @@ else
 
         if (firstRender)
         {
-            await ViewModel.InitializeAsync();
+            try
+            {
+                await ViewModel.InitializeAsync();
+            }
+            catch (Exception)
+            {
+                //Problem communicating with API
+                NavigationManager.NavigateTo("error");
+                return;
+            }
 
             if (ViewModel.UserReportBreaks == null ||
                 !ViewModel.UserReportBreaks.Any())
@@ -79,5 +100,10 @@ else
     private void NavigateToCommercialSelection()
     {
         NavigationManager.NavigateTo("commercials");
+    }
+
+    private async Task PrintAsync()
+    {
+        await JsRuntime.InvokeVoidAsync("window.print", null);
     }
 }
