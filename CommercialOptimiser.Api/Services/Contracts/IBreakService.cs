@@ -1,4 +1,4 @@
-﻿using CommercialOptimiser.Data.Models;
+﻿using CommercialOptimiser.Core.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -8,9 +8,7 @@ namespace CommercialOptimiser.Api.Services.Contracts
     {
         #region Public Methods
 
-        Task<IEnumerable<Break>> GetBreaksAsync();
-
-        Task<IEnumerable<BreakCommercials>> GetOptimalBreakCommercialsAsync();
+        Task<List<Break>> GetBreaksAsync();
 
         #endregion
     }

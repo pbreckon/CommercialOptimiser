@@ -61,8 +61,10 @@ namespace CommercialOptimiser.App
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddLocalization(options => options.ResourcesPath = "Resources");
+            services.AddHttpContextAccessor();
 
-            services.AddTransient<ICommercialsViewModel, CommercialsViewModel>();
+            services.AddTransient<IAllocationReportViewModel, AllocationReportViewModel>();
+            services.AddTransient<ICommercialSelectionViewModel, CommercialSelectionViewModel>();
             services.AddTransient<IApiHelper, ApiHelper>();
         }
 

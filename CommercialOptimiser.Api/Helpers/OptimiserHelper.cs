@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using CommercialOptimiser.Data.Models;
+using CommercialOptimiser.Core.Models;
 
 namespace CommercialOptimiser.Api.Helpers
 {

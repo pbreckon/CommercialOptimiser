@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CommercialOptimiser.Api.Database.Tables
 {
-    [Table("Demographic")]
-    public class DemographicTable : IBaseTable
+    [Table("User")]
+    public class UserTable : IBaseTable
     {
         #region Public Properties
 
@@ -13,9 +13,8 @@ namespace CommercialOptimiser.Api.Database.Tables
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [Column(nameof(Title))]
-        [MaxLength(255)]
-        public string Title { get; set; }
+        [Column(nameof(UserUniqueId))]
+        public string UserUniqueId { get; set; }
 
         #endregion
     }

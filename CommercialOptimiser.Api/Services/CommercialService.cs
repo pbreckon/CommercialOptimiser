@@ -1,5 +1,5 @@
 ﻿using CommercialOptimiser.Api.Services.Contracts;
-using CommercialOptimiser.Data.Models;
+using CommercialOptimiser.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +32,7 @@ namespace CommercialOptimiser.Api.Services
 
         #region Public Methods
 
-        public async Task<IEnumerable<Commercial>> GetCommercialsAsync()
+        public async Task<List<Commercial>> GetCommercialsAsync()
         {
             var commercialTables =
                 await _databaseContext.Commercials
@@ -40,7 +40,7 @@ namespace CommercialOptimiser.Api.Services
                     .ToListAsync();
 
             var commercials = commercialTables.Select(_tableModelConverter.ConvertTableToModel);
-            return commercials;
+            return commercials.ToList();
         }
 
         #endregion

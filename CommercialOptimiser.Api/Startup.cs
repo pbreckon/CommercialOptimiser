@@ -42,7 +42,6 @@ namespace CommercialOptimiser.Api
                 app.UseDeveloperExceptionPage();
             }
 
-            dbContext.Database.EnsureCreated();
             var scopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
             using (var scope = scopeFactory.CreateScope())
             {
@@ -76,7 +75,8 @@ namespace CommercialOptimiser.Api
             services.AddScoped<IOptimiserHelper, OptimiserHelper>();
             
             services.AddTransient<IBreakService, BreakService>();
-            services.AddTransient<ICommercialService, CommercialService>();
+            services.AddTransient<ICommercialService, CommercialService>(); 
+            services.AddTransient<IUserBreakCommercialService, UserBreakCommercialService>();
         }
 
         #endregion

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CommercialOptimiser.Api.Helpers;
-using CommercialOptimiser.Data.Models;
+using CommercialOptimiser.Core.Models;
 using NUnit.Framework;
 
 namespace CommercialOptimiser.Api.Test

@@ -1,12 +1,11 @@
 ﻿using CommercialOptimiser.Api.Services.Contracts;
-using CommercialOptimiser.Data.Models;
-using Microsoft.AspNetCore.Http;
+using CommercialOptimiser.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace BusinessDayCalculator.Controllers
+namespace CommercialOptimiser.Api.Controllers
 {
     [ApiController]
     [Route("Commercials")]

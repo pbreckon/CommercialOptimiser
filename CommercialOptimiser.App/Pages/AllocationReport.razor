@@ -1,0 +1,83 @@
+﻿@page "/"
+
+@using CommercialOptimiser.App.ViewModels
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<AllocationReport> Resources
+@inject IAllocationReportViewModel ViewModel
+@inject NavigationManager NavigationManager
+
+<h1>@Resources["Title"]</h1>
+
+<button class="btn btn-primary" @onclick="NavigateToCommercialSelection">
+    @Resources["SelectCommercials"]
+</button>
+
+@if (ViewModel.UserReportBreaks == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <tbody>
+            @foreach (var userReportBreak in ViewModel.UserReportBreaks)
+            {
+                <tr>
+                    <td>
+                        @userReportBreak.BreakTitle
+                        @foreach (var commercial in userReportBreak.UserReportBreakCommercials)
+                        {
+                            <p />
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <td>@commercial.CommercialTitle</td>
+                                        <td>@commercial.Rating</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        }
+                    </td>
+                </tr>
+            }
+            <tr>
+                <td>
+                    @Resources["Total"] @ViewModel.UserReportBreaksTotal
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <button class="btn btn-primary" @onclick="ViewModel.PrintAsync">
+        @Resources["Print"]
+    </button>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+            await ViewModel.InitializeAsync();
+
+            if (ViewModel.UserReportBreaks == null ||
+                !ViewModel.UserReportBreaks.Any())
+                NavigateToCommercialSelection();
+            else
+                StateHasChanged();
+        }
+    }
+
+    private void NavigateToCommercialSelection()
+    {
+        NavigationManager.NavigateTo("commercials");
+    }
+}

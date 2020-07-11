@@ -1,5 +1,5 @@
 ﻿using CommercialOptimiser.Api.Services.Contracts;
-using CommercialOptimiser.Data.Models;
+using CommercialOptimiser.Core.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -41,17 +41,6 @@ namespace BusinessDayCalculator.Api.Controllers
         public async Task<IEnumerable<Break>> Get()
         {
             var data = await _breakService.GetBreaksAsync();
-            return data;
-        }
-
-        /// <summary>
-        /// Returns the available commercial breaks.
-        /// </summary>
-        [HttpGet]
-        [Route("optimal")]
-        public async Task<IEnumerable<BreakCommercials>> GetOptimalBreakCommercials()
-        {
-            var data = await _breakService.GetOptimalBreakCommercialsAsync();
             return data;
         }
 

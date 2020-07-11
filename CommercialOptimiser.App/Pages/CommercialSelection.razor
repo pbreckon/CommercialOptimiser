@@ -1,0 +1,63 @@
+﻿@page "/commercials"
+
+@using CommercialOptimiser.App.ViewModels
+@using Microsoft.Extensions.Localization
+@using CommercialOptimiser.Core.Models
+@inject IStringLocalizer<CommercialSelection> Resources
+@inject ICommercialSelectionViewModel ViewModel
+@inject NavigationManager NavigationManager
+
+<h1>@Resources["Title"]</h1>
+
+@if (ViewModel.Commercials == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <tbody>
+            @foreach (var commercial in ViewModel.Commercials)
+            {
+                <tr>
+                    <td>@commercial.Commercial.Title</td>
+                    <td>
+                        <input type="checkbox"
+                               id=@commercial.Commercial.Id
+                               @bind=@commercial.Checked>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button class="btn btn-primary" @onclick="OptimiseCommercialAllocationAsync">
+        @Resources["OptimiseCommercialAllocation"]
+    </button>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await ViewModel.InitializeAsync();
+    }
+
+    private async Task OptimiseCommercialAllocationAsync()
+    {
+        try
+        {
+            await ViewModel.OptimiseCommercialAllocationAsync();
+        }
+        catch (ArgumentException ex)
+        {
+
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+        NavigationManager.NavigateTo("/");
+    }
+}
+

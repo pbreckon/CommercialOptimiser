@@ -1,5 +1,5 @@
 ﻿using CommercialOptimiser.Api.Services.Contracts;
-using CommercialOptimiser.Data.Models;
+using CommercialOptimiser.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +32,7 @@ namespace CommercialOptimiser.Api.Services
 
         #region Public Methods
 
-        public async Task<IEnumerable<Break>> GetBreaksAsync()
+        public async Task<List<Break>> GetBreaksAsync()
         {
             var breakTables =
                 await _databaseContext.Breaks
@@ -41,27 +41,7 @@ namespace CommercialOptimiser.Api.Services
                     .ToListAsync();
 
             var breaks = breakTables.Select(_tableModelConverter.ConvertTableToModel);
-            return breaks;
-        }
-
-        public async Task<IEnumerable<BreakCommercials>> GetOptimalBreakCommercialsAsync()
-        {
-            var breakTables =
-                await _databaseContext.Breaks
-                    .Include(aBreak => aBreak.BreakDemographics)
-                    .ThenInclude(breakDemographic => breakDemographic.Demographic)
-                    .ToListAsync();
-
-
-            return null;
-            //return new List<BreakCommercials> 
-            //    {
-            //        new BreakCommercials() 
-            //        {
-            //            Break = breaks.First(),
-            //            Commercials = new List<Commercial> { new Commercial { Title = "Hoooo" } }
-            //        }
-            //    };
+            return breaks.ToList();
         }
 
         #endregion

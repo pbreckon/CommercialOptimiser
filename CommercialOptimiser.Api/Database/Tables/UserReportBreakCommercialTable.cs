@@ -3,19 +3,21 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CommercialOptimiser.Api.Database.Tables
 {
-    [Table("Demographic")]
-    public class DemographicTable : IBaseTable
+    [Table("UserReportBreakCommercial")]
+    public class UserReportBreakCommercialTable : IBaseTable
     {
         #region Public Properties
+        
+        public string CommercialTitle { get; set; }
 
         [Column(nameof(Id))]
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [Column(nameof(Title))]
-        [MaxLength(255)]
-        public string Title { get; set; }
+        public int Rating { get; set; }
+
+        public virtual UserReportBreakTable UserReportBreak { get; set; }
 
         #endregion
     }

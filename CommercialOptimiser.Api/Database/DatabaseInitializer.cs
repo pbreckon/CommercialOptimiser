@@ -48,7 +48,7 @@ namespace CommercialOptimiser.Api.Database
         {
             using var serviceScope = _scopeFactory.CreateScope();
             using var context = serviceScope.ServiceProvider.GetService<DatabaseContext>();
-            context.Database.Migrate();
+            context.Database.EnsureCreated();
         }
 
         public void SeedData()

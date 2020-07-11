@@ -3,10 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CommercialOptimiser.Api.Database.Tables
 {
-    [Table("BreakDemographic", Schema = "dbo")]
+    [Table("BreakDemographic")]
     public class BreakDemographicTable
     {
-        [Column("Id")]
+        [Column(nameof(Id))]
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
@@ -15,7 +15,7 @@ namespace CommercialOptimiser.Api.Database.Tables
 
         public virtual DemographicTable Demographic { get; set; }
 
-        [Column("Rating")]
+        [Column(nameof(Rating))]
         public int Rating { get; set; }
     }
 }

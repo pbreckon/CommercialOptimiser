@@ -5,24 +5,24 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace CommercialOptimiser.Api.Database.Tables
 {
     [Table("Break")]
-    public class BreakTable
+    public class BreakTable : IBaseTable
     {
         #region Public Properties
 
         public virtual List<BreakDemographicTable> BreakDemographics { get; set; } = new List<BreakDemographicTable>();
 
-        [Column("Capacity")]
+        [Column(nameof(Capacity))]
         public int Capacity { get; set; }
 
-        [Column("Id")]
+        [Column(nameof(Id))]
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [Column("InvalidCommercialTypes")]
+        [Column(nameof(InvalidCommercialTypes))]
         public string InvalidCommercialTypes { get; set; }
 
-        [Column("Title")]
+        [Column(nameof(Title))]
         [StringLength(255)]
         [Required]
         public string Title { get; set; }
