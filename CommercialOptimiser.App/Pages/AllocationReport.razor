@@ -1,5 +1,6 @@
 ﻿@page "/"
 
+@using System.Diagnostics.Eventing.Reader
 @using CommercialOptimiser.App.ViewModels
 @using Microsoft.Extensions.Localization
 @inject IStringLocalizer<AllocationReport> Resources
@@ -43,12 +44,19 @@ else
 
             @foreach (var userReportBreak in ViewModel.UserReportBreaks)
             {
-                @foreach (var commercial in userReportBreak.UserReportBreakCommercials)
+                @for(int i = 0; i < userReportBreak.UserReportBreakCommercials.Count; i++) 
                 {
                     <tr>
-                        <td>@userReportBreak.BreakTitle</td>
-                        <td>@commercial.CommercialTitle</td>
-                        <td class="numeric">@commercial.Rating</td>
+                        @if(i == 0)
+                        { 
+                            <td>@userReportBreak.BreakTitle</td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+                        <td>@userReportBreak.UserReportBreakCommercials[i].CommercialTitle</td>
+                        <td class="numeric">@userReportBreak.UserReportBreakCommercials[i].Rating</td>
                     </tr>
                 }
             }
