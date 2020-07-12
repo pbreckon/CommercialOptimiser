@@ -114,6 +114,7 @@ namespace CommercialOptimiser.Api.Services
                     .Include(urb => urb.UserReportBreakCommercials)
                     .Include(urb => urb.User)
                     .Where(ubt => ubt.User.UserUniqueId == uniqueUserId)
+                    .OrderBy(ubt => ubt.BreakTitle)
                     .ToListAsync();
 
             var userBreaks = userReportBreakTables.Select(_tableModelConverter.ConvertTableToModel);

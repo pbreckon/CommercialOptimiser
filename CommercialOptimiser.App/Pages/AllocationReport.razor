@@ -7,9 +7,7 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime
 
-<header>
-    <h1>@Resources["Title"]</h1>
-</header>
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
 @if (ViewModel.UserReportBreaks == null)
 {
@@ -20,53 +18,63 @@
 else
 {
     <header>
-        <button class="btn btn-primary" @onclick="NavigateToCommercialSelection">
-            @Resources["SelectCommercials"]
-        </button>
+        <h1>@Resources["Title"]</h1>
     </header>
 
+    <p class="small" />
 
-    <table class="table">
-        <thead>
-            <tr>
-                <td>
-                </td>
-            </tr>
+    <header>
+        <div align="center">
+            <button class="btn btn-primary" @onclick="() => NavigateToCommercialSelection(false)">
+                @Resources["SelectCommercials"]
+            </button>
+        </div>
+    </header>
 
-        </thead>
-        <tbody>
+    <p class="small" />
+
+    <div class="w3-container">
+        <table class="w3-table-all">
+            <thead>
+                <tr class="w3-green">
+                    <th>@Resources["BreakTitle"]</th>
+                    <th>@Resources["CommercialTitle"]</th>
+                    <th class="numeric">@Resources["RatingTitle"]</th>
+                </tr>
+            </thead>
+
             @foreach (var userReportBreak in ViewModel.UserReportBreaks)
             {
+                @foreach (var commercial in userReportBreak.UserReportBreakCommercials)
+                {
+                    <tr>
+                        <td>@userReportBreak.BreakTitle</td>
+                        <td>@commercial.CommercialTitle</td>
+                        <td class="numeric">@commercial.Rating</td>
+                    </tr>
+                }
+            }
+
+            <tfoot>
                 <tr>
-                    <td>
-                        @userReportBreak.BreakTitle
-                        @foreach (var commercial in userReportBreak.UserReportBreakCommercials)
-                        {
-                            <p />
-                            <table class="table">
-                                <tbody>
-                                    <tr>
-                                        <td>@commercial.CommercialTitle</td>
-                                        <td>@commercial.Rating</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        }
+                    <td />
+                    <td />
+                    <td class="numeric">
+                        @Resources["Total"] @ViewModel.UserReportBreaksTotal
                     </td>
                 </tr>
-            }
-            <tr>
-                <td>
-                    @Resources["Total"] @ViewModel.UserReportBreaksTotal
-                </td>
-            </tr>
-        </tbody>
-    </table>
+            </tfoot>
+        </table>
+    </div>
+
+    <p class="small" />
 
     <footer>
-        <button class="btn btn-primary" @onclick="PrintAsync">
-            @Resources["Print"]
-        </button>
+        <div align="center">
+            <button class="btn btn-primary" @onclick="PrintAsync">
+                @Resources["Print"]
+            </button>
+        </div>
     </footer>
 }
 
@@ -91,15 +99,15 @@ else
 
             if (ViewModel.UserReportBreaks == null ||
                 !ViewModel.UserReportBreaks.Any())
-                NavigateToCommercialSelection();
+                NavigateToCommercialSelection(true);
             else
                 StateHasChanged();
         }
     }
 
-    private void NavigateToCommercialSelection()
+    private void NavigateToCommercialSelection(bool preventCancel)
     {
-        NavigationManager.NavigateTo("commercials");
+        NavigationManager.NavigateTo("commercials/" + preventCancel.ToString());
     }
 
     private async Task PrintAsync()

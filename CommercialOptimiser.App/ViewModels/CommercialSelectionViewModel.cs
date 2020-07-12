@@ -16,6 +16,8 @@ namespace CommercialOptimiser.App.ViewModels
         int BreakCapacity { get; }
 
         List<CommercialViewModel> Commercials { get; set; }
+        bool PreventCancel { get; }
+        bool PreventOptimise { get; }
 
         int SelectedCommercialCount { get; }
 
@@ -69,6 +71,13 @@ namespace CommercialOptimiser.App.ViewModels
 
         public List<CommercialViewModel> Commercials { get; set; }
 
+        public bool PreventCancel => false;
+
+        public bool PreventOptimise =>
+            Commercials == null ||
+            _breaks == null ||
+            SelectedCommercialCount < BreakCapacity;
+
         public int SelectedCommercialCount => SelectedCommercials?.Count ?? 0;
 
         #endregion
@@ -79,7 +88,7 @@ namespace CommercialOptimiser.App.ViewModels
         {
             Commercials =
                 (await _apiHelper.GetCommercialsAsync())?
-                .OrderBy(value => value.Title)
+                .OrderBy(value => value.Id)
                 .Select(value => new CommercialViewModel(value)).ToList();
 
             _breaks = await _apiHelper.GetBreaksAsync();

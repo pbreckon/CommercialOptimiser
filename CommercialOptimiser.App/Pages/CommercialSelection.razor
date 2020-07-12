@@ -1,4 +1,4 @@
-﻿@page "/commercials"
+﻿@page "/commercials/{preventCancel:bool}"
 
 @using CommercialOptimiser.App.ViewModels
 @using Microsoft.Extensions.Localization
@@ -7,62 +7,77 @@
 @inject ICommercialSelectionViewModel ViewModel
 @inject NavigationManager NavigationManager
 
-<h1>@Resources["Title"]</h1>
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
 @if (ViewModel.Commercials == null)
 {
-    <p><em>Loading...</em></p>
+    <p>
+        <em>Loading...</em>
+    </p>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                @string.Format(Resources["CommercialsSelected"], 
-                    ViewModel.SelectedCommercialCount,
-                    ViewModel.BreakCapacity)
-            </tr>
-            <tr>
-                <td>
-                    @Resources["SelectAll"]
-                    <input type="checkbox"
-                           @bind=@ViewModel.AllSelected>
-                </td>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var commercial in ViewModel.Commercials)
-            {
-                <tr>
-                    <td>@commercial.Commercial.Title</td>
-                    <td>
-                        <input type="checkbox"
-                               id=@commercial.Commercial.Id
-                               @bind=@commercial.Checked>
-                    </td>
-                </tr>
-            }
-        </tbody>
-        <tfoot>
-            <tr>
-                <td>
-                    <button class="btn btn-primary" @onclick="Cancel">
-                        @Resources["Cancel"]
-                    </button>
-                </td>
-                <td>
-                    <button class="btn btn-primary" @onclick="OptimiseCommercialAllocationAsync">
-                        @Resources["OptimiseCommercialAllocation"]
-                    </button>
-                </td>
-            </tr>
-        </tfoot>
-    </table>
+    <header>
+        <h1>@Resources["Title"]</h1>
+    </header>
 
-   
+    <p class="small"/>
+
+    <div align="center">
+        <div class="w3-container commercial-table">
+            <table class="w3-table-all">
+                <thead>
+                <tr class="w3-green">
+                    <th>@Resources["CommercialTitle"]</th>
+                    <th class="numeric">
+                        <input type="checkbox"
+                               @bind=@ViewModel.AllSelected>
+                    </th>
+                </tr>
+                </thead>
+
+                @foreach (var commercial in ViewModel.Commercials)
+                {
+                    <tr>
+                        <td>@commercial.Commercial.Title</td>
+                        <td class="numeric">
+                            <input type="checkbox"
+                                   id=@commercial.Commercial.Id @bind=@commercial.Checked>
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+    <p class="small"/>
+
+    <div align="center" class="largeText">
+        @string.Format(Resources["CommercialsSelected"],
+            ViewModel.SelectedCommercialCount,
+            ViewModel.BreakCapacity)
+    </div>
+
+    <p class="small"/>
+
+    <div align="center">
+        <button class="btn btn-primary"
+                disabled="@PreventCancel"
+                @onclick="Cancel">
+            @Resources["Cancel"]
+        </button>
+            
+        <button class="btn btn-primary small-left-margin"
+                disabled="@ViewModel.PreventOptimise"
+                @onclick="OptimiseCommercialAllocationAsync">
+            @Resources["OptimiseCommercialAllocation"]
+        </button>
+    </div>
 }
 
 @code {
+    [Parameter]
+    public bool PreventCancel { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         await ViewModel.InitializeAsync();
@@ -73,10 +88,10 @@ else
         try
         {
             if (!await ViewModel.OptimiseCommercialAllocationAsync())
-            {
-                //Not enough commercials selected
-                return;
-            }
+        {
+            //Not enough commercials selected
+            return;
+        }
         }
         catch (ArgumentException)
         {
@@ -98,4 +113,3 @@ else
         NavigationManager.NavigateTo("/");
     }
 }
-

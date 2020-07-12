@@ -168,8 +168,12 @@ namespace CommercialOptimiser.Api.Database
                         Title = "Commercial 10", CommercialType = "Finance", Demographic = demographics[2]
                     }
                 };
-            context.Commercials.AddRange(commercials);
-            context.SaveChanges();
+
+            foreach (var commercial in commercials)
+            {
+                context.Commercials.Add(commercial);
+                context.SaveChanges();
+            }
         }
 
         #endregion

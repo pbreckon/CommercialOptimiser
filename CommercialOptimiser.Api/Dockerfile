@@ -7,10 +7,11 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
-COPY ["CommercialOptimiser.Api.csproj", ""]
-RUN dotnet restore "./CommercialOptimiser.Api.csproj"
+COPY ["CommercialOptimiser.Api/CommercialOptimiser.Api.csproj", "CommercialOptimiser.Api/"]
+COPY ["CommercialOptimiser.Data/CommercialOptimiser.Core.csproj", "CommercialOptimiser.Data/"]
+RUN dotnet restore "CommercialOptimiser.Api/CommercialOptimiser.Api.csproj"
 COPY . .
-WORKDIR "/src/."
+WORKDIR "/src/CommercialOptimiser.Api"
 RUN dotnet build "CommercialOptimiser.Api.csproj" -c Release -o /app/build
 
 FROM build AS publish
