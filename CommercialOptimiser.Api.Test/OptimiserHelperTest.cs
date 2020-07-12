@@ -21,7 +21,7 @@ namespace CommercialOptimiser.Api.Test
             var optimisedBreakCommercials =
                 optimiser.GetOptimalBreakCommercials(breaks, commercials);
 
-            CheckResults(optimisedBreakCommercials, breaks, commercials, 1970);
+            CheckResults(optimisedBreakCommercials, breaks, 1970);
         }
 
         [Test]
@@ -31,12 +31,10 @@ namespace CommercialOptimiser.Api.Test
             var (breaks, commercials, _) = GetBasicData();
 
             commercials.RemoveAt(0);
-            List<BreakCommercials> optimisedBreakCommercials;
 
             try
             {
-                optimisedBreakCommercials =
-                    optimiser.GetOptimalBreakCommercials(breaks, commercials);
+                optimiser.GetOptimalBreakCommercials(breaks, commercials);
                 Assert.Fail("Shouldn't be enough commercials");
             }
             catch (ArgumentException)
@@ -48,16 +46,14 @@ namespace CommercialOptimiser.Api.Test
             commercials[1].CommercialType = CommercialType.Finance.ToString();
 
             //4 financial commercials, should still be possible
-            optimisedBreakCommercials =
-                optimiser.GetOptimalBreakCommercials(breaks, commercials);
-            CheckResults(optimisedBreakCommercials, breaks, commercials, 1940);
+            var optimisedBreakCommercials = optimiser.GetOptimalBreakCommercials(breaks, commercials);
+            CheckResults(optimisedBreakCommercials, breaks, 1940);
 
             commercials[2].CommercialType = CommercialType.Finance.ToString();
 
             try
             {
-                optimisedBreakCommercials =
-                    optimiser.GetOptimalBreakCommercials(breaks, commercials);
+                optimiser.GetOptimalBreakCommercials(breaks, commercials);
                 Assert.Fail("Too many financial commercials, one break would contain three");
             }
             catch (ArgumentException)
@@ -78,7 +74,7 @@ namespace CommercialOptimiser.Api.Test
             var optimisedBreakCommercials =
                 optimiser.GetOptimalBreakCommercials(breaks, commercials);
 
-            CheckResults(optimisedBreakCommercials, breaks, commercials, 2240);
+            CheckResults(optimisedBreakCommercials, breaks, 2240);
 
             breaks[0].Capacity = 4;
             breaks[1].Capacity = 3;
@@ -87,7 +83,7 @@ namespace CommercialOptimiser.Api.Test
             optimisedBreakCommercials =
                 optimiser.GetOptimalBreakCommercials(breaks, commercials);
 
-            CheckResults(optimisedBreakCommercials, breaks, commercials, 1700);
+            CheckResults(optimisedBreakCommercials, breaks, 1700);
         }
 
         [Test]
@@ -108,7 +104,7 @@ namespace CommercialOptimiser.Api.Test
             var optimisedBreakCommercials =
                 optimiser.GetOptimalBreakCommercials(breaks, commercials);
 
-            CheckResults(optimisedBreakCommercials, breaks, commercials, 2120);
+            CheckResults(optimisedBreakCommercials, breaks, 2120);
         }
 
         #endregion
@@ -118,7 +114,6 @@ namespace CommercialOptimiser.Api.Test
         private void CheckResults(
             List<BreakCommercials> optimisedBreakCommercials,
             List<Break> breaks,
-            List<Commercial> commercials,
             int expectedTotalRating)
         {
             Assert.IsTrue(

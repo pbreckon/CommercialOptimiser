@@ -49,7 +49,7 @@ namespace CommercialOptimiser.Data
         {
             using var serviceScope = _scopeFactory.CreateScope();
             using var context = serviceScope.ServiceProvider.GetService<DatabaseContext>();
-            context.Database.EnsureCreated();
+            context.Database.Migrate();
         }
 
         public void SeedData()
