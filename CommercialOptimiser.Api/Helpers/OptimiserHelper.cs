@@ -115,13 +115,8 @@ namespace CommercialOptimiser.Api.Helpers
             //Do this until there are no more restriction conflicts or we can't do a swap
             SwapInvalidCommercials(allBreakCommercials, remainingCommercials);
 
-            //We've eliminated type restrictions, but we may not have the commercials completely 
-            //optimized. So we cycle through them checking swaps until the rating change is no longer positive
-            //Each time the rating change is positive we make the swap
-            // TryAllRemainingSwaps(allBreakCommercials, remainingCommercials);
-
-            //Finally we should be left with breaks filled with commercials can be rearranged into
-            //a valid order - so that's what we do next
+            //Finally we should be left with breaks filled with commercials that can be
+            //rearranged into a valid order - so that's what we do next
             ReorderCommercials(allBreakCommercials);
 
             if (!CheckTypesAreValid(allBreakCommercials))
@@ -135,6 +130,12 @@ namespace CommercialOptimiser.Api.Helpers
 
         #region Private Methods
 
+        /// <summary>
+        /// Ensures that breaks don't contain any invalid commercial types, and that
+        /// no two commercial types have been allocated next to each other.
+        /// </summary>
+        /// <param name="allBreakCommercials">The breaks with allocated commercials</param>
+        /// <returns>True if the breaks allocated commercials are valid</returns>
         private bool CheckTypesAreValid(List<BreakCommercials> allBreakCommercials)
         {
             foreach (var breakCommercials in allBreakCommercials)
@@ -159,6 +160,23 @@ namespace CommercialOptimiser.Api.Helpers
             return true;
         }
 
+        /// <summary>
+        /// Finds the best available (valid) swap for the specified source commercial
+        /// from the specified source break/commercials instance. This could be from another
+        /// break or one of the unused commercials. Additionally a swap can be found from another
+        /// break/commercials instance with the target break commercial being replaced by a currently
+        /// unused commercial
+        /// </summary>
+        /// <param name="sourceBreakCommercials">Source break commercials</param>
+        /// <param name="sourceCommercial">Source commercials</param>
+        /// <param name="otherBreakCommercials">Other break commercials available for swapping</param>
+        /// <param name="unusedCommercials">Commercials not used by any break currently</param>
+        /// <returns>
+        /// The break/commercials instance to swap the source commercial to,
+        /// the new source commercial to replace the old source commercial with,
+        /// the old commercial in the target break/commercials instance and
+        /// the new commercial in the target break/commercials instance
+        /// </returns>
         private (
             BreakCommercials SelectedBreakCommercials,
             Commercial NewSourceCommercial,
@@ -268,7 +286,12 @@ namespace CommercialOptimiser.Api.Helpers
                 bestRatingChange);
         }
 
-        private (string, int) GetMostFrequentCommercialType(
+        /// <summary>
+        /// Finds the most frequent commercial type allocated to the break
+        /// </summary>
+        /// <param name="breakCommercials">Break/commercials instance</param>
+        /// <returns>The commercial type and the frequency it occurs</returns>
+        private (string CommercialType, int Frequency) GetMostFrequentCommercialType(
             BreakCommercials breakCommercials)
         {
             var commercialFrequency =
@@ -287,6 +310,16 @@ namespace CommercialOptimiser.Api.Helpers
             return (maxValue.CommercialType, maxValue.Count);
         }
 
+        /// <summary>
+        /// For a specific commercial swap this method calculates what the affect on
+        /// the total rating will be, so we can determine if it's better than other
+        /// available swaps
+        /// </summary>
+        /// <param name="sourceBreakCommercials">Source break/commercials instance</param>
+        /// <param name="sourceCommercial">Source commercial</param>
+        /// <param name="targetBreakCommercials">Target break/commercials instance</param>
+        /// <param name="targetCommercial">Target commercial</param>
+        /// <returns>The rating change</returns>
         private int GetRatingChangeForSwap(
             BreakCommercials sourceBreakCommercials,
             Commercial sourceCommercial,
@@ -320,6 +353,11 @@ namespace CommercialOptimiser.Api.Helpers
             return ratingTotalAfterSwap - ratingTotalBeforeSwap;
         }
 
+        /// <summary>
+        /// Returns whether the specified break has been filled yet
+        /// </summary>
+        /// <param name="allBreakCommercials">Break/commercials instance</param>
+        /// <returns>True if there's still space available</returns>
         private bool HasSpaceAvailable(List<BreakCommercials> allBreakCommercials)
         {
             var hasSpace =
@@ -329,6 +367,13 @@ namespace CommercialOptimiser.Api.Helpers
             return hasSpace;
         }
 
+        /// <summary>
+        /// Checks if the commercial can be moved to the break based on commercial type
+        /// restrictions.
+        /// </summary>
+        /// <param name="breakCommercials">The Break/commercials instance</param>
+        /// <param name="commercial">The commercial to add</param>
+        /// <returns>True if the commercial can be added to the break</returns>
         private bool IsCommercialValidForBreak(
             BreakCommercials breakCommercials,
             Commercial commercial)
@@ -349,6 +394,9 @@ namespace CommercialOptimiser.Api.Helpers
             return true;
         }
 
+        /// <summary>
+        /// Debug logging
+        /// </summary>
         private void LogCurrentAllocation(List<BreakCommercials> allBreakCommercials)
         {
             Debug.WriteLine("Break Commercials:");
@@ -361,18 +409,25 @@ namespace CommercialOptimiser.Api.Helpers
             }
         }
 
+        /// <summary>
+        /// Retrieves how frequent a commercial type can be in a break whilst still being
+        /// valid
+        /// </summary>
         private int MaxBreakCapacityForCommercialType(Break aBreak)
         {
             return (int) Math.Ceiling(aBreak.Capacity / 2d);
         }
 
+        /// <summary>
+        /// Ensures commercial types are not adjacent in each break
+        /// </summary>
         private void ReorderCommercials(List<BreakCommercials> allBreakCommercials)
         {
             foreach (var breakCommercials in allBreakCommercials)
             {
                 var reorderedCommercials = new List<Commercial>();
 
-                var frequentCommercialType = GetMostFrequentCommercialType(breakCommercials);
+                var frequentCommercialResult = GetMostFrequentCommercialType(breakCommercials);
 
                 bool doneReordering = true;
                 while (breakCommercials.Commercials.Count > 0 &&
@@ -383,14 +438,14 @@ namespace CommercialOptimiser.Api.Helpers
                     Commercial matchingCommercial = null;
 
                     var lastCommercialType = reorderedCommercials.LastOrDefault()?.CommercialType;
-                    if (lastCommercialType == null || lastCommercialType != frequentCommercialType.Item1)
+                    if (lastCommercialType == null || lastCommercialType != frequentCommercialResult.CommercialType)
                     {
                         //Prioritise adding a commercial of the most frequent type to avoid 
                         //possible adjacency conflicts later
                         matchingCommercial =
                             breakCommercials.Commercials.FirstOrDefault(
                                 value =>
-                                    value.CommercialType == frequentCommercialType.Item1);
+                                    value.CommercialType == frequentCommercialResult.CommercialType);
                     }
 
                     if (matchingCommercial == null)
@@ -418,6 +473,9 @@ namespace CommercialOptimiser.Api.Helpers
             }
         }
 
+        /// <summary>
+        /// Resolves invalid commercial allocations by attempting swaps with other breaks
+        /// </summary>
         private void SwapInvalidCommercials(
             List<BreakCommercials> allBreakCommercials,
             List<Commercial> unusedCommercials)
@@ -463,13 +521,13 @@ namespace CommercialOptimiser.Api.Helpers
                 //(e.g. if we have 4 slots and 3 of a certain type, there's no way
                 //to arrange them so they aren't adjacent). In this case we will go through
                 //comparing the rating change for the potential swaps and pick the most favourable one
-                var frequentCommercialType = GetMostFrequentCommercialType(breakCommercials);
+                var frequentCommercialResult = GetMostFrequentCommercialType(breakCommercials);
 
                 string tooFrequentCommercialType = null;
                 int maxFrequencyAllowed = MaxBreakCapacityForCommercialType(breakCommercials.Break);
 
-                if (frequentCommercialType.Item2 > maxFrequencyAllowed)
-                    tooFrequentCommercialType = frequentCommercialType.Item1;
+                if (frequentCommercialResult.Frequency > maxFrequencyAllowed)
+                    tooFrequentCommercialType = frequentCommercialResult.CommercialType;
 
                 if (!string.IsNullOrEmpty(tooFrequentCommercialType))
                 {
