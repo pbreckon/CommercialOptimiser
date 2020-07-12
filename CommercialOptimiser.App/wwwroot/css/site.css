@@ -5,7 +5,7 @@ html, body {
 }
 
 h1 {
-    font-size: x-large;
+    font-size: large;
     text-align: center;
 }
 
@@ -13,8 +13,12 @@ tr {
     font-size: large
 }
 
+p.very-small {
+    padding-bottom: 0;
+}
+
 p.small {
-    padding-bottom: 0.5cm;
+    padding-bottom: 0.4cm;
 }
 
 p.medium {
@@ -29,13 +33,25 @@ div.largeText {
     font-size: large
 }
 
-.w3-container.commercial-table {
-    width: 75%
+div.largeHighlightedText {
+    font-size: large;
+    color: #FF0000
 }
 
+@media screen and (min-width: 600px) {
+    .w3-container.commercial-table {
+        width: 50%
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .div.break-table {
+        width: 100%
+    }
+}
 
 @media print {
-    footer, header, non-printable-part {
+    .noprint {
         display: none;
     }
 }

@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CommercialOptimiser.Data\CommercialOptimiser.Core.csproj" />
+    <ProjectReference Include="..\CommercialOptimiser.Core\CommercialOptimiser.Core.csproj" />
   </ItemGroup>
 
 

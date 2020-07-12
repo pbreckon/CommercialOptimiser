@@ -61,8 +61,6 @@ namespace CommercialOptimiser.Api.Database
                 .OnDelete(DeleteBehavior.Cascade);
         }
 
-
-
         #endregion
     }
 

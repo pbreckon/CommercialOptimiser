@@ -1,11 +1,8 @@
 ﻿using CommercialOptimiser.Core.Models;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Principal;
 using System.Threading.Tasks;
 using CommercialOptimiser.App.Helpers;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Http;
 
 namespace CommercialOptimiser.App.ViewModels
 {
@@ -49,7 +46,9 @@ namespace CommercialOptimiser.App.ViewModels
         public List<UserReportBreak> UserReportBreaks { get; private set; }
 
         public int UserReportBreaksTotal =>
-            UserReportBreaks?.Sum(value => value.UserReportBreakCommercials.Sum(commercial => commercial.Rating)) ?? 0;
+            UserReportBreaks?.Sum(value => 
+                value.UserReportBreakCommercials?.Sum(commercial => 
+                    commercial?.Rating ?? 0) ?? 0) ?? 0;
 
         #endregion
 

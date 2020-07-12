@@ -56,10 +56,10 @@ namespace CommercialOptimiser.App.ViewModels
 
         public bool AllSelected
         {
-            get { return Commercials.All(value => value.Checked); }
+            get { return Commercials?.All(value => value.Checked) ?? false; }
             set
             {
-                if (value)
+                if (value && Commercials != null)
                 {
                     foreach (var commercial in Commercials)
                         commercial.Checked = true;
@@ -97,6 +97,9 @@ namespace CommercialOptimiser.App.ViewModels
         public async Task<bool> OptimiseCommercialAllocationAsync()
         {
             if (BreakCapacity == 0) return false;
+            var selectedCommercialViewModels = SelectedCommercials;
+            if (selectedCommercialViewModels == null) return false;
+
             var selectedCommercials =
                 SelectedCommercials.Select(value => value.Commercial).ToList();
             if (selectedCommercials.Count < BreakCapacity) return false;

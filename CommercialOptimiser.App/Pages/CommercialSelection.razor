@@ -1,11 +1,14 @@
 ﻿@page "/commercials/{preventCancel:bool}"
 
+@using System.Diagnostics.Eventing.Reader
 @using CommercialOptimiser.App.ViewModels
 @using Microsoft.Extensions.Localization
 @using CommercialOptimiser.Core.Models
+@using Microsoft.AspNetCore.SignalR
 @inject IStringLocalizer<CommercialSelection> Resources
 @inject ICommercialSelectionViewModel ViewModel
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JsRuntime
 
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
@@ -21,19 +24,19 @@ else
         <h1>@Resources["Title"]</h1>
     </header>
 
-    <p class="small"/>
+    <p class="very-small" />
 
     <div align="center">
         <div class="w3-container commercial-table">
             <table class="w3-table-all">
                 <thead>
-                <tr class="w3-green">
-                    <th>@Resources["CommercialTitle"]</th>
-                    <th class="numeric">
-                        <input type="checkbox"
-                               @bind=@ViewModel.AllSelected>
-                    </th>
-                </tr>
+                    <tr class="w3-green">
+                        <th>@Resources["CommercialTitle"]</th>
+                        <th class="numeric">
+                            <input type="checkbox"
+                                   @bind=@ViewModel.AllSelected>
+                        </th>
+                    </tr>
                 </thead>
 
                 @foreach (var commercial in ViewModel.Commercials)
@@ -49,15 +52,27 @@ else
             </table>
         </div>
     </div>
-    <p class="small"/>
 
-    <div align="center" class="largeText">
-        @string.Format(Resources["CommercialsSelected"],
-            ViewModel.SelectedCommercialCount,
-            ViewModel.BreakCapacity)
-    </div>
+    <p class="very-small" />
 
-    <p class="small"/>
+    @if (ViewModel.PreventOptimise)
+    {
+        <div align="center" class="largeHighlightedText">
+            @string.Format(Resources["CommercialsSelected"],
+               ViewModel.SelectedCommercialCount,
+               ViewModel.BreakCapacity)
+        </div>
+    }
+    @if (!ViewModel.PreventOptimise)
+    {
+        <div align="center" class="largeText">
+            @string.Format(Resources["CommercialsSelected"],
+               ViewModel.SelectedCommercialCount,
+               ViewModel.BreakCapacity)
+        </div>
+    }
+
+    <p class="very-small" />
 
     <div align="center">
         <button class="btn btn-primary"
@@ -65,7 +80,7 @@ else
                 @onclick="Cancel">
             @Resources["Cancel"]
         </button>
-            
+
         <button class="btn btn-primary small-left-margin"
                 disabled="@ViewModel.PreventOptimise"
                 @onclick="OptimiseCommercialAllocationAsync">
@@ -88,14 +103,18 @@ else
         try
         {
             if (!await ViewModel.OptimiseCommercialAllocationAsync())
-        {
-            //Not enough commercials selected
-            return;
-        }
+            {
+                //Not enough commercials selected
+                await JsRuntime.InvokeVoidAsync("showalert", 
+                    CommercialOptimiser.App.Resources.Pages.CommercialSelection.AllocationFailed);
+                return;
+            }
         }
         catch (ArgumentException)
         {
             //Failure to allocate commercials
+            await JsRuntime.InvokeVoidAsync("showalert", 
+                CommercialOptimiser.App.Resources.Pages.CommercialSelection.AllocationFailed);
             return;
         }
         catch (Exception)
@@ -104,7 +123,7 @@ else
             NavigationManager.NavigateTo("error");
             return;
         }
-
+        
         NavigationManager.NavigateTo("/");
     }
 

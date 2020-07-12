@@ -12,7 +12,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CommercialOptimiser.Data\CommercialOptimiser.Core.csproj" />
+    <ProjectReference Include="..\CommercialOptimiser.Core\CommercialOptimiser.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Resources\Pages\CommercialSelection.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CommercialSelection.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\Pages\CommercialSelection.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>CommercialSelection.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

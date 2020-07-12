@@ -43,7 +43,7 @@ namespace CommercialOptimiser.App.Helpers
             IConfiguration configuration,
             ILogger<ApiHelper> logger)
         {
-            var baseUrl = configuration["ApiHostName"];
+            var baseUrl = configuration["ApiBaseUrl"];
             _client = new HttpClient();
             _client.BaseAddress = new Uri(baseUrl);
 

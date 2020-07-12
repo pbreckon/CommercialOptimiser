@@ -17,13 +17,11 @@
 }
 else
 {
-    <header>
+    <header class="noprint">
         <h1>@Resources["Title"]</h1>
-    </header>
 
-    <p class="small" />
+        <p class="very-small" />
 
-    <header>
         <div align="center">
             <button class="btn btn-primary" @onclick="() => NavigateToCommercialSelection(false)">
                 @Resources["SelectCommercials"]
@@ -31,9 +29,9 @@ else
         </div>
     </header>
 
-    <p class="small" />
+    <p class="very-small" />
 
-    <div class="w3-container">
+    <div class="break-table">
         <table class="w3-table-all">
             <thead>
                 <tr class="w3-green">
@@ -67,9 +65,9 @@ else
         </table>
     </div>
 
-    <p class="small" />
+    <footer class="noprint">
+        <p class="very-small" />
 
-    <footer>
         <div align="center">
             <button class="btn btn-primary" @onclick="PrintAsync">
                 @Resources["Print"]
