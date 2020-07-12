@@ -1,8 +1,8 @@
 ﻿using System.Linq;
-using CommercialOptimiser.Api.Database.Tables;
+using CommercialOptimiser.Data.Tables;
 using Microsoft.EntityFrameworkCore;
 
-namespace CommercialOptimiser.Api.Database
+namespace CommercialOptimiser.Data
 {
     public class DatabaseContext : DbContext
     {

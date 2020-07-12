@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CommercialOptimiser.Api.Database.Tables
+namespace CommercialOptimiser.Data.Tables
 {
     [Table("UserReportBreak")]
     public class UserReportBreakTable : IBaseTable

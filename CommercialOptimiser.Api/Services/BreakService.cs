@@ -1,11 +1,8 @@
 ﻿using CommercialOptimiser.Api.Services.Contracts;
 using CommercialOptimiser.Core.Models;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using CommercialOptimiser.Api.Database;
-using CommercialOptimiser.Api.Database.Tables;
+using CommercialOptimiser.Data.Factories.Contracts;
 
 namespace CommercialOptimiser.Api.Services
 {
@@ -13,19 +10,15 @@ namespace CommercialOptimiser.Api.Services
     {
         #region Members
 
-        private readonly DatabaseContext _databaseContext;
-        private readonly ITableModelConverter _tableModelConverter;
+        private readonly IBreakFactory _breakFactory;
 
         #endregion
 
         #region Constructors
 
-        public BreakService(
-            DatabaseContext databaseContext,
-            ITableModelConverter tableModelConverter)
+        public BreakService(IBreakFactory breakFactory)
         {
-            _databaseContext = databaseContext;
-            _tableModelConverter = tableModelConverter;
+            _breakFactory = breakFactory;
         }
 
         #endregion
@@ -34,14 +27,7 @@ namespace CommercialOptimiser.Api.Services
 
         public async Task<List<Break>> GetBreaksAsync()
         {
-            var breakTables =
-                await _databaseContext.Breaks
-                    .Include(aBreak => aBreak.BreakDemographics)
-                    .ThenInclude(breakDemographic => breakDemographic.Demographic)
-                    .ToListAsync();
-
-            var breaks = breakTables.Select(_tableModelConverter.ConvertTableToModel);
-            return breaks.ToList();
+            return await _breakFactory.GetBreaksAsync();
         }
 
         #endregion

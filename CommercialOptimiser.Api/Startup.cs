@@ -1,8 +1,10 @@
-using CommercialOptimiser.Api.Database;
-using CommercialOptimiser.Api.Database.Tables;
+using CommercialOptimiser.Data;
+using CommercialOptimiser.Data.Tables;
 using CommercialOptimiser.Api.Helpers;
 using CommercialOptimiser.Api.Services;
 using CommercialOptimiser.Api.Services.Contracts;
+using CommercialOptimiser.Data.Factories;
+using CommercialOptimiser.Data.Factories.Contracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -77,6 +79,11 @@ namespace CommercialOptimiser.Api
             services.AddTransient<IBreakService, BreakService>();
             services.AddTransient<ICommercialService, CommercialService>(); 
             services.AddTransient<IUserBreakCommercialService, UserBreakCommercialService>();
+
+            services.AddTransient<IBreakFactory, BreakFactory>();
+            services.AddTransient<ICommercialFactory, CommercialFactory>();
+            services.AddTransient<IUserFactory, UserFactory>();
+            services.AddTransient<IUserReportBreakFactory, UserReportBreakFactory>();
         }
 
         #endregion

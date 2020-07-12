@@ -3,20 +3,17 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CommercialOptimiser.Api.Services.Contracts;
 using CommercialOptimiser.Core.Models;
-using CommercialOptimiser.Core.Requests;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace CommercialOptimiser.Api.Controllers
 {
     [ApiController]
-    [Microsoft.AspNetCore.Mvc.Route("userBreaks")]
+    [Route("userBreaks")]
     public class UserBreakCommercialController : ControllerBase
     {
         #region Members
-
-        private readonly ILogger<UserBreakCommercialController> _logger;
-
+        
         private readonly IUserBreakCommercialService _userBreakCommercialService;
 
         #endregion
@@ -24,10 +21,8 @@ namespace CommercialOptimiser.Api.Controllers
         #region Constructors
 
         public UserBreakCommercialController(
-            ILogger<UserBreakCommercialController> logger,
             IUserBreakCommercialService service)
         {
-            _logger = logger;
             _userBreakCommercialService = service;
         }
 

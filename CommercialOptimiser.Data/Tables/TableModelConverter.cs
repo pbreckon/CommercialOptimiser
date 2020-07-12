@@ -2,7 +2,7 @@
 using System.Linq;
 using CommercialOptimiser.Core.Models;
 
-namespace CommercialOptimiser.Api.Database.Tables
+namespace CommercialOptimiser.Data.Tables
 {
     public interface ITableModelConverter
     {
@@ -59,7 +59,7 @@ namespace CommercialOptimiser.Api.Database.Tables
                 new UserTable
                 {
                     Id = model.Id,
-                    UserUniqueId = model.UniqueUserId
+                    UniqueUserId = model.UniqueUserId
                 };
             return userTable;
         }
@@ -92,7 +92,7 @@ namespace CommercialOptimiser.Api.Database.Tables
                 new User
                 {
                     Id = table.Id,
-                    UniqueUserId = table.UserUniqueId
+                    UniqueUserId = table.UniqueUserId
                 };
             return userBreak;
         }

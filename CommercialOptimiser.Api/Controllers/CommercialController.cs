@@ -13,7 +13,6 @@ namespace CommercialOptimiser.Api.Controllers
     {
         #region Members
 
-        private readonly ILogger<CommercialController> _logger;
         private readonly ICommercialService _commercialService;
 
         #endregion
@@ -21,10 +20,8 @@ namespace CommercialOptimiser.Api.Controllers
         #region Constructors
 
         public CommercialController(
-            ILogger<CommercialController> logger,
             ICommercialService service)
         {
-            _logger = logger;
             _commercialService = service;
         }
 

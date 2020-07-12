@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CommercialOptimiser.Api.Database.Tables;
+using CommercialOptimiser.Data.Tables;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CommercialOptimiser.Api.Database
+namespace CommercialOptimiser.Data
 {
     public interface IDatabaseInitializer
     {
@@ -27,6 +27,7 @@ namespace CommercialOptimiser.Api.Database
 
     public class DatabaseInitializer : IDatabaseInitializer
     {
+       
         #region Members
 
         private readonly IServiceScopeFactory _scopeFactory;

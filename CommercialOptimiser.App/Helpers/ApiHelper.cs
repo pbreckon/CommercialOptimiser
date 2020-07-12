@@ -5,9 +5,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using CommercialOptimiser.Core.Models;
-using CommercialOptimiser.Core.Requests;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -57,12 +56,6 @@ namespace CommercialOptimiser.App.Helpers
         public async Task CalculateOptimalBreakCommercialsAsync(
             List<Commercial> commercials)
         {
-            var request = 
-                new CalculateOptimalBreakCommercialsRequest
-                {
-                    Commercials = commercials,
-                    UserUniqueId = GetUniqueUserId
-                };
             var requestJson = JsonConvert.SerializeObject(commercials);
 
             var httpContent =
@@ -73,8 +66,10 @@ namespace CommercialOptimiser.App.Helpers
 
             try
             {
-                var response = 
+                var response =
                     await _client.PostAsync($"userBreaks/{GetUniqueUserId}", httpContent).ConfigureAwait(false);
+                if (!response.IsSuccessStatusCode)
+                    ThrowResponseException(response);
             }
             catch (Exception exception)
             {
@@ -88,9 +83,12 @@ namespace CommercialOptimiser.App.Helpers
             try
             {
                 var response = await _client.GetAsync("breaks");
+                if (!response.IsSuccessStatusCode)
+                    ThrowResponseException(response);
+
                 var breaks = JsonConvert.DeserializeObject<Break[]>(
                     response.Content.ReadAsStringAsync().Result);
-                return breaks.ToList();
+                return breaks?.ToList();
             }
             catch (Exception exception)
             {
@@ -104,9 +102,12 @@ namespace CommercialOptimiser.App.Helpers
             try
             {
                 var response = await _client.GetAsync("commercials");
+                if (!response.IsSuccessStatusCode)
+                    ThrowResponseException(response);
+
                 var commercials = JsonConvert.DeserializeObject<Commercial[]>(
                     response.Content.ReadAsStringAsync().Result);
-                return commercials.ToList();
+                return commercials?.ToList();
             }
             catch (Exception exception)
             {
@@ -120,9 +121,12 @@ namespace CommercialOptimiser.App.Helpers
             try
             {
                 var response = await _client.GetAsync($"userBreaks/{GetUniqueUserId}");
+                if (!response.IsSuccessStatusCode)
+                    ThrowResponseException(response);
+
                 var userReportBreaks = JsonConvert.DeserializeObject<UserReportBreak[]>(
                     response.Content.ReadAsStringAsync().Result);
-                return userReportBreaks.ToList();
+                return userReportBreaks?.ToList();
             }
             catch (Exception exception)
             {
@@ -136,6 +140,17 @@ namespace CommercialOptimiser.App.Helpers
         #region Private Properties
 
         private string GetUniqueUserId => BlazorAppContext.UserIpAddress;
+
+        #endregion
+
+        #region Private Methods
+
+        private void ThrowResponseException(HttpResponseMessage response)
+        {
+            throw new HttpRequestException(
+                "StatusCode " + response.StatusCode + Environment.NewLine +
+                "Reason " + response.ReasonPhrase);
+        }
 
         #endregion
     }
