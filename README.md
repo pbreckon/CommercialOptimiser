@@ -16,5 +16,6 @@ CommercialOptimiser.Data - Database integration with table definitions and Entit
 CommercialOptimiser.App/appsettings.json - ApiBaseUrl should be set to the hosted url of CommercialOptimiser.Api<br/>
 CommercialOptimiser.Data/appsettings.json - CommercialOptimiser connection string should be setup based on the location of your database<br/>
 
+Note: The solution supports different combinations of breaks, break capacities, invalid commercial types etc. To try these either edit CommercialOptimiser.Data/DatabaseInitializer and re-create the database or change the table contents directly via SQL.
 
 
