@@ -55,7 +55,7 @@ else
 
     <p class="very-small" />
 
-    @if (ViewModel.PreventOptimise)
+    @if (ViewModel.SufficientCommercialsSelected)
     {
         <div align="center" class="largeHighlightedText">
             @string.Format(Resources["CommercialsSelected"],
@@ -76,7 +76,7 @@ else
 
     <div align="center">
         <button class="btn btn-primary"
-                disabled="@PreventCancel"
+                disabled="@ViewModel.PreventCancel"
                 @onclick="Cancel">
             @Resources["Cancel"]
         </button>
@@ -95,17 +95,20 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await ViewModel.InitializeAsync();
+        await ViewModel.InitializeAsync(PreventCancel);
     }
 
     private async Task OptimiseCommercialAllocationAsync()
     {
+        if (ViewModel.IsBusy) return;
+
+        ViewModel.IsBusy = true;
         try
         {
             if (!await ViewModel.OptimiseCommercialAllocationAsync())
             {
                 //Not enough commercials selected
-                await JsRuntime.InvokeVoidAsync("showalert", 
+                await JsRuntime.InvokeVoidAsync("showalert",
                     CommercialOptimiser.App.Resources.Pages.CommercialSelection.AllocationFailed);
                 return;
             }
@@ -113,7 +116,7 @@ else
         catch (ArgumentException)
         {
             //Failure to allocate commercials
-            await JsRuntime.InvokeVoidAsync("showalert", 
+            await JsRuntime.InvokeVoidAsync("showalert",
                 CommercialOptimiser.App.Resources.Pages.CommercialSelection.AllocationFailed);
             return;
         }
@@ -123,12 +126,17 @@ else
             NavigationManager.NavigateTo("error");
             return;
         }
-        
+        finally
+        {
+            ViewModel.IsBusy = false;
+        }
+
         NavigationManager.NavigateTo("/");
     }
 
     private void Cancel()
     {
+        if (ViewModel.IsBusy) return;
         NavigationManager.NavigateTo("/");
     }
 }

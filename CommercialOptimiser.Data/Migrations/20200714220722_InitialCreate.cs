@@ -11,7 +11,7 @@ namespace CommercialOptimiser.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     Capacity = table.Column<int>(nullable: false),
                     InvalidCommercialTypes = table.Column<string>(nullable: true),
                     Title = table.Column<string>(maxLength: 255, nullable: false)
@@ -26,7 +26,7 @@ namespace CommercialOptimiser.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     Title = table.Column<string>(maxLength: 255, nullable: true)
                 },
                 constraints: table =>
@@ -35,16 +35,15 @@ namespace CommercialOptimiser.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "User",
+                name: "UserReportBreak",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UniqueUserId = table.Column<string>(nullable: true)
+                    UserUniqueId = table.Column<string>(nullable: false),
+                    Report = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_User", x => x.Id);
+                    table.PrimaryKey("PK_UserReportBreak", x => x.UserUniqueId);
                 });
 
             migrationBuilder.CreateTable(
@@ -52,7 +51,7 @@ namespace CommercialOptimiser.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     BreakId = table.Column<int>(nullable: true),
                     DemographicId = table.Column<int>(nullable: true),
                     Rating = table.Column<int>(nullable: false)
@@ -79,7 +78,7 @@ namespace CommercialOptimiser.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Sqlite:Autoincrement", true),
                     CommercialType = table.Column<string>(maxLength: 50, nullable: true),
                     DemographicId = table.Column<int>(nullable: true),
                     Title = table.Column<string>(maxLength: 255, nullable: true)
@@ -93,47 +92,6 @@ namespace CommercialOptimiser.Data.Migrations
                         principalTable: "Demographic",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserReportBreak",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    BreakTitle = table.Column<string>(nullable: true),
-                    UserId = table.Column<int>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserReportBreak", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_UserReportBreak_User_UserId",
-                        column: x => x.UserId,
-                        principalTable: "User",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserReportBreakCommercial",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CommercialTitle = table.Column<string>(nullable: true),
-                    Rating = table.Column<int>(nullable: false),
-                    UserReportBreakId = table.Column<int>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserReportBreakCommercial", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_UserReportBreakCommercial_UserReportBreak_UserReportBreakId",
-                        column: x => x.UserReportBreakId,
-                        principalTable: "UserReportBreak",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -150,16 +108,6 @@ namespace CommercialOptimiser.Data.Migrations
                 name: "IX_Commercial_DemographicId",
                 table: "Commercial",
                 column: "DemographicId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserReportBreak_UserId",
-                table: "UserReportBreak",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserReportBreakCommercial_UserReportBreakId",
-                table: "UserReportBreakCommercial",
-                column: "UserReportBreakId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -171,19 +119,13 @@ namespace CommercialOptimiser.Data.Migrations
                 name: "Commercial");
 
             migrationBuilder.DropTable(
-                name: "UserReportBreakCommercial");
+                name: "UserReportBreak");
 
             migrationBuilder.DropTable(
                 name: "Break");
 
             migrationBuilder.DropTable(
                 name: "Demographic");
-
-            migrationBuilder.DropTable(
-                name: "UserReportBreak");
-
-            migrationBuilder.DropTable(
-                name: "User");
         }
     }
 }

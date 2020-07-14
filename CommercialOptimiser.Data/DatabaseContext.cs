@@ -28,11 +28,7 @@ namespace CommercialOptimiser.Data
 
         public DbSet<DemographicTable> Demographics { get; set; }
 
-        public DbSet<UserReportBreakCommercialTable> UserReportBreakCommercials { get; set; }
-
         public DbSet<UserReportBreakTable> UserReportBreaks { get; set; }
-
-        public DbSet<UserTable> Users { get; set; }
 
         #endregion
 
@@ -41,6 +37,8 @@ namespace CommercialOptimiser.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseLazyLoadingProxies();
+            optionsBuilder.UseSqlite("Filename=CommercialOptimiser.db")
+                .UseLazyLoadingProxies();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -48,16 +46,6 @@ namespace CommercialOptimiser.Data
             modelBuilder.Entity<BreakDemographicTable>()
                 .HasOne(bd => bd.Break)
                 .WithMany(b => b.BreakDemographics)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<UserReportBreakTable>()
-                .HasOne(urb => urb.User)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<UserReportBreakCommercialTable>()
-                .HasOne(urbc => urbc.UserReportBreak)
-                .WithMany(urb => urb.UserReportBreakCommercials)
                 .OnDelete(DeleteBehavior.Cascade);
         }
 

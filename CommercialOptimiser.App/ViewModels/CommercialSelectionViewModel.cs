@@ -16,16 +16,22 @@ namespace CommercialOptimiser.App.ViewModels
         int BreakCapacity { get; }
 
         List<CommercialViewModel> Commercials { get; set; }
+
+        bool IsBusy { get; set; }
+
         bool PreventCancel { get; }
+
         bool PreventOptimise { get; }
 
         int SelectedCommercialCount { get; }
+
+        bool SufficientCommercialsSelected { get; }
 
         #endregion
 
         #region Public Methods
 
-        Task InitializeAsync();
+        Task InitializeAsync(bool alwaysPreventCancel);
 
         Task<bool> OptimiseCommercialAllocationAsync();
 
@@ -39,6 +45,8 @@ namespace CommercialOptimiser.App.ViewModels
         private readonly IApiHelper _apiHelper;
 
         private List<Break> _breaks;
+
+        private bool _alwaysPreventCancel;
 
         #endregion
 
@@ -71,21 +79,29 @@ namespace CommercialOptimiser.App.ViewModels
 
         public List<CommercialViewModel> Commercials { get; set; }
 
-        public bool PreventCancel => false;
+        public bool IsBusy { get; set; }
+
+        public bool PreventCancel => _alwaysPreventCancel || IsBusy;
 
         public bool PreventOptimise =>
+            SufficientCommercialsSelected ||
+            IsBusy;
+
+        public int SelectedCommercialCount => SelectedCommercials?.Count ?? 0;
+
+        public bool SufficientCommercialsSelected =>
             Commercials == null ||
             _breaks == null ||
             SelectedCommercialCount < BreakCapacity;
-
-        public int SelectedCommercialCount => SelectedCommercials?.Count ?? 0;
 
         #endregion
 
         #region Public Methods
 
-        public async Task InitializeAsync()
+        public async Task InitializeAsync(bool preventCancel)
         {
+            _alwaysPreventCancel = preventCancel;
+
             Commercials =
                 (await _apiHelper.GetCommercialsAsync())?
                 .OrderBy(value => value.Id)

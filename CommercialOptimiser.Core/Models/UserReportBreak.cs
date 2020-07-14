@@ -12,7 +12,7 @@ namespace CommercialOptimiser.Core.Models
 
         public string BreakTitle { get; set; }
 
-        public User User { get; set; }
+        public string UserUniqueId { get; set; }
 
         public List<UserReportBreakCommercial> UserReportBreakCommercials { get; set; }
 

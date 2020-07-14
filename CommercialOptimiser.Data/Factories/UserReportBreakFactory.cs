@@ -30,50 +30,30 @@ namespace CommercialOptimiser.Data.Factories
 
         #endregion
 
-        public async Task DeleteReportBreaksAsync(int userId)
+        public async Task AddReportBreaksAsync(string uniqueUserId, List<UserReportBreak> userReportBreaks)
         {
-            var currentUserBreaks =
-                await _databaseContext.UserReportBreaks.Where(
-                    value =>
-                        value.User.Id == userId).ToListAsync();
-            foreach (var currentUserBreak in currentUserBreaks)
+            var table = _tableModelConverter.ConvertModelToTable(uniqueUserId, userReportBreaks);
+            
+            if (_databaseContext.UserReportBreaks.Any(e => e.UserUniqueId == uniqueUserId))
             {
-                var currentUserBreakCommercials =
-                    await _databaseContext.UserReportBreakCommercials.Where(
-                        value =>
-                            value.UserReportBreak.Id == currentUserBreak.Id).ToListAsync();
-
-                _databaseContext.UserReportBreakCommercials.RemoveRange(currentUserBreakCommercials);
-                _databaseContext.SaveChanges();
+                _databaseContext.Update(table);
+            }
+            else
+            {
+                await _databaseContext.AddAsync(table);
             }
 
-            _databaseContext.UserReportBreaks.RemoveRange(currentUserBreaks);
             _databaseContext.SaveChanges();
         }
 
-        public async Task AddReportBreakAsync(UserReportBreak userReportBreak)
+        public async Task<List<UserReportBreak>> GetReportBreaksAsync(string uniqueUserId)
         {
-            var userReportBreakTable = _tableModelConverter.ConvertModelToTable(userReportBreak);
-
-            _databaseContext.DetachLocal(userReportBreakTable.User);
-            _databaseContext.SaveChanges();
-
-            await _databaseContext.UserReportBreaks.AddAsync(userReportBreakTable);
-            _databaseContext.SaveChanges();
-        }
-
-        public async Task<List<UserReportBreak>> GetReportBreaksAsync(int userId)
-        {
-            var userReportBreakTables =
+            var userReportBreakTable =
                 await _databaseContext.UserReportBreaks
-                    .Include(urb => urb.UserReportBreakCommercials)
-                    .Include(urb => urb.User)
-                    .Where(ubt => ubt.User.Id == userId)
-                    .OrderBy(ubt => ubt.BreakTitle)
-                    .ToListAsync();
+                    .Where(ubt => ubt.UserUniqueId == uniqueUserId).FirstOrDefaultAsync();
+            if (userReportBreakTable == null) return null;
 
-            var userBreaks = userReportBreakTables.Select(_tableModelConverter.ConvertTableToModel);
-            return userBreaks.ToList();
+            return _tableModelConverter.ConvertTableToModel(userReportBreakTable);
         }
     }
 }

@@ -5,20 +5,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace CommercialOptimiser.Data.Tables
 {
     [Table("UserReportBreak")]
-    public class UserReportBreakTable : IBaseTable
+    public class UserReportBreakTable
     {
         #region Public Properties
 
-        public string BreakTitle { get; set; }
-
-        public virtual List<UserReportBreakCommercialTable> UserReportBreakCommercials { get; set; }
-
-        [Column(nameof(Id))]
+        [Column(nameof(UserUniqueId))]
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public string UserUniqueId { get; set; }
 
-        public virtual UserTable User { get; set; }
+        public string Report { get; set; }
 
         #endregion
     }

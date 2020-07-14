@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using CommercialOptimiser.Core.Models;
+using Newtonsoft.Json;
 
 namespace CommercialOptimiser.Data.Tables
 {
@@ -8,17 +10,14 @@ namespace CommercialOptimiser.Data.Tables
     {
         #region Public Methods
 
-        UserReportBreakTable ConvertModelToTable(UserReportBreak model);
-        UserReportBreakCommercialTable ConvertModelToTable(UserReportBreakCommercial model);
-        UserTable ConvertModelToTable(User model);
+        UserReportBreakTable ConvertModelToTable(string userUniqueId, List<UserReportBreak> model);
 
-        UserReportBreak ConvertTableToModel(UserReportBreakTable table);
-        UserReportBreakCommercial ConvertTableToModel(UserReportBreakCommercialTable table);
+        List<UserReportBreak> ConvertTableToModel(UserReportBreakTable table);
+
         Break ConvertTableToModel(BreakTable table);
         BreakDemographic ConvertTableToModel(BreakDemographicTable table);
         Commercial ConvertTableToModel(CommercialTable table);
         Demographic ConvertTableToModel(DemographicTable table);
-        User ConvertTableToModel(UserTable table);
 
         #endregion
     }
@@ -27,74 +26,23 @@ namespace CommercialOptimiser.Data.Tables
     {
         #region Public Methods
 
-        public UserReportBreakTable ConvertModelToTable(UserReportBreak model)
+        public UserReportBreakTable ConvertModelToTable(string userUniqueId, List<UserReportBreak> model)
         {
+            var json = JsonConvert.SerializeObject(model);
+
             var userReportBreakTable =
                 new UserReportBreakTable
                 {
-                    Id = model.Id,
-                    User = ConvertModelToTable(model.User),
-                    BreakTitle = model.BreakTitle,
-                    UserReportBreakCommercials =
-                        model.UserReportBreakCommercials.Select(ConvertModelToTable).ToList()
+                    UserUniqueId = userUniqueId,
+                    Report = json
                 };
             return userReportBreakTable;
         }
 
-        public UserReportBreakCommercialTable ConvertModelToTable(UserReportBreakCommercial model)
+        public List<UserReportBreak> ConvertTableToModel(UserReportBreakTable table)
         {
-            var userTable =
-                new UserReportBreakCommercialTable
-                {
-                    Id = model.Id,
-                    CommercialTitle = model.CommercialTitle,
-                    Rating = model.Rating
-                };
-            return userTable;
-        }
-
-        public UserTable ConvertModelToTable(User model)
-        {
-            var userTable =
-                new UserTable
-                {
-                    Id = model.Id,
-                    UniqueUserId = model.UniqueUserId
-                };
-            return userTable;
-        }
-
-        public UserReportBreakCommercial ConvertTableToModel(UserReportBreakCommercialTable table)
-        {
-            var userBreakCommercial =
-                new UserReportBreakCommercial
-                {
-                    CommercialTitle = table.CommercialTitle,
-                    Rating = table.Rating
-                };
-            return userBreakCommercial;
-        }
-
-        public UserReportBreak ConvertTableToModel(UserReportBreakTable table)
-        {
-            var userBreak =
-                new UserReportBreak
-                {
-                    BreakTitle = table.BreakTitle,
-                    UserReportBreakCommercials = table.UserReportBreakCommercials.Select(ConvertTableToModel).ToList()
-                };
-            return userBreak;
-        }
-
-        public User ConvertTableToModel(UserTable table)
-        {
-            var userBreak =
-                new User
-                {
-                    Id = table.Id,
-                    UniqueUserId = table.UniqueUserId
-                };
-            return userBreak;
+            var userReportBreaks = JsonConvert.DeserializeObject<List<UserReportBreak>>(table.Report);
+            return userReportBreaks;
         }
 
         public Break ConvertTableToModel(BreakTable table)

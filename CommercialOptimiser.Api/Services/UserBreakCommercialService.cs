@@ -16,7 +16,6 @@ namespace CommercialOptimiser.Api.Services
         private readonly IUserReportBreakFactory _userReportBreakFactory;
         private readonly IOptimiserHelper _optimiserHelper;
         private readonly IBreakFactory _breakFactory;
-        private readonly IUserFactory _userFactory;
 
         #endregion
 
@@ -24,12 +23,10 @@ namespace CommercialOptimiser.Api.Services
 
         public UserBreakCommercialService(
             IBreakFactory breakFactory,
-            IUserFactory userFactory,
             IUserReportBreakFactory userReportBreakFactory,
             IOptimiserHelper optimiserHelper)
         {
             _breakFactory = breakFactory;
-            _userFactory = userFactory;
             _userReportBreakFactory = userReportBreakFactory;
             _optimiserHelper = optimiserHelper;
         }
@@ -42,28 +39,18 @@ namespace CommercialOptimiser.Api.Services
             string uniqueUserId,
             List<Commercial> commercials)
         {
-
             var breaks = await _breakFactory.GetBreaksAsync();
 
             var optimalBreakCommercials =
                 _optimiserHelper.GetOptimalBreakCommercials(
                     breaks,
                     commercials);
-
-            var user = await _userFactory.GetUserAsync(uniqueUserId);
-
-            if (user == null)
-            {
-                user = new User { UniqueUserId = uniqueUserId};
-                await _userFactory.AddUserAsync(user);
-            }
-
-            await _userReportBreakFactory.DeleteReportBreaksAsync(user.Id);
-
+            
             //create report
+            var userReportBreaks = new List<UserReportBreak>();
             foreach (var breakCommercials in optimalBreakCommercials)
             {
-                var userReportBreak =
+                userReportBreaks.Add(
                     new UserReportBreak
                     {
                         BreakTitle = breakCommercials.Break.Title,
@@ -77,19 +64,16 @@ namespace CommercialOptimiser.Api.Services
                                                          value => value.Demographic.Id == commercial.Demographic.Id)
                                                      ?.Rating ?? 0
                                     }).ToList(),
-                        User = user
-                    };
-
-                await _userReportBreakFactory.AddReportBreakAsync(userReportBreak);
+                        UserUniqueId = uniqueUserId
+                    });
             }
+
+            await _userReportBreakFactory.AddReportBreaksAsync(uniqueUserId, userReportBreaks);
         }
 
         public async Task<List<UserReportBreak>> GetUserReportBreaksAsync(string uniqueUserId)
         {
-            var user = await _userFactory.GetUserAsync(uniqueUserId);
-            if (user == null) return null;
-
-            return await _userReportBreakFactory.GetReportBreaksAsync(user.Id); 
+            return await _userReportBreakFactory.GetReportBreaksAsync(uniqueUserId); 
         }
 
         #endregion

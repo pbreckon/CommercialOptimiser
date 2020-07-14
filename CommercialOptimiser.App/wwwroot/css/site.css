@@ -48,6 +48,9 @@ div.largeHighlightedText {
     .div.break-table {
         width: 100%
     }
+    tr {
+        font-size: medium
+    }
 }
 
 @media print {

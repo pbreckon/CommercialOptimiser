@@ -67,9 +67,7 @@ namespace CommercialOptimiser.Api
 
             services.AddMemoryCache();
 
-            services.AddDbContext<DatabaseContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("CommercialOptimiser"))
-                    .UseLazyLoadingProxies());
+            services.AddDbContext<DatabaseContext>();
 
             services.AddScoped<IDatabaseInitializer, DatabaseInitializer>();
             services.AddScoped<ITableModelConverter, TableModelConverter>();
@@ -81,10 +79,9 @@ namespace CommercialOptimiser.Api
 
             services.AddTransient<IBreakFactory, BreakFactory>();
             services.AddTransient<ICommercialFactory, CommercialFactory>();
-            services.AddTransient<IUserFactory, UserFactory>();
             services.AddTransient<IUserReportBreakFactory, UserReportBreakFactory>();
         }
-
+        
         #endregion
     }
 }
